@@ -24,7 +24,7 @@ class Item(ABC):
         raise NotImplementedError
 
 
-class GammaCWindmill(Item):
+class GammaWindmill(Item):
     def __init__(
         self, id: int, max_prod: float, threshold: float, shape: float, scale: float
     ) -> None:
