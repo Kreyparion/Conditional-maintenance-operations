@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Item(ABC):
-    """Class that represent a single unit item (eg windmill)"""
+    """Class that represents a single unit item (eg windmill)."""
 
     def __init__(self, id: int) -> None:
         self.id = id
@@ -12,6 +12,7 @@ class Item(ABC):
 
     @abstractmethod
     def wearing_func(self) -> None:
+        """Function that update the wear attribute according to the item behaviour."""
         raise NotImplementedError
 
     @abstractmethod
@@ -21,12 +22,23 @@ class Item(ABC):
     @abstractmethod
     @property
     def productivity(self) -> float:
+        """Returns the energy produced during a day."""
         raise NotImplementedError
 
 
-class GammaWindmill(Item):
+class GammaItem(Item):
+    """Class that represents an item whose wearing steps follow a Gamma process.
+
+    Args:
+        id (int): The item's id.
+        max_prod (float): The energy produced by the item at full capacity.
+        threshold (float): If the wear of the item is greater than the threshold, it is stopped.
+        shape (float): The shape of the gamma distribution. Must be non-negative.
+        scale (float): The scale of the gamma distribution. Must be non-negative. Default is equal to 1.
+    """
+
     def __init__(
-        self, id: int, max_prod: float, threshold: float, shape: float, scale: float
+        self, id: int, max_prod: float, threshold: float, shape: float, scale: float = 1
     ) -> None:
         super().__init__(id)
         self.threshold = threshold
@@ -43,7 +55,7 @@ class GammaWindmill(Item):
 
     @property
     def productivity(self) -> float:
-        return self.max_prod
+        return self.max_prod if self.wear < self.threshold else 0.0
 
     def reset(self) -> None:
         self.wear = 0
