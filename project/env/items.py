@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Callable
 
-import numpy as np
 
-
-class Item(ABC):
+class ABCItem(ABC):
     """Class that represents a single unit item (eg windmill)."""
 
     def __init__(self, id: int) -> None:
@@ -11,7 +10,7 @@ class Item(ABC):
         self.wear = 0
 
     @abstractmethod
-    def wearing_func(self) -> None:
+    def wearing_step(self) -> None:
         """Function that update the wear attribute according to the item behaviour."""
         raise NotImplementedError
 
@@ -26,31 +25,29 @@ class Item(ABC):
         raise NotImplementedError
 
 
-class GammaItem(Item):
-    """Class that represents an item whose wearing steps follow a Gamma process.
+class Item(ABCItem):
+    """Class that represents an item whose wearing steps following a continuous process.
 
     Args:
         id (int): The item's id.
         max_prod (float): The energy produced by the item at full capacity.
+        wearing_func (Callable): The function returning wearing steps.
         threshold (float): If the wear of the item is greater than the threshold, it is stopped.
-        shape (float): The shape of the gamma distribution. Must be non-negative.
-        scale (float): The scale of the gamma distribution. Must be non-negative. Default is equal to 1.
     """
 
     def __init__(
-        self, id: int, max_prod: float, threshold: float, shape: float, scale: float = 1
+        self, id: int, max_prod: float, threshold: float, wearing_func: Callable
     ) -> None:
         super().__init__(id)
         self.threshold = threshold
-        self.shape = shape
-        self.scale = scale
+        self.wearing_func = wearing_func
         self.max_prod = max_prod
 
-    def wearing_func(self) -> None:
+    def wearing_step(self) -> None:
         if self.wear < self.threshold:
-            self.wear = max(
+            self.wear = min(
                 self.threshold,
-                self.wear + np.random.gamma(sahpe=self.shape, scale=self.scale),
+                self.wear + self.wearing_func(),
             )
 
     @property
