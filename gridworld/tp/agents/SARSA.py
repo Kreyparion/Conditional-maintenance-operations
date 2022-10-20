@@ -10,7 +10,7 @@ class TD_EGreedyAgent(ValueBasedAgent):
     def __init__(self, env : gym.Env, **kwargs):
         self.env = env
         self.stateCrossActions = [[(state, action) for action in env.gridworld.getPossibleActions(state)] for state in env.mdp.getStates()][1:]
-        self.allstates = env.mdp.getStates()[1:]
+        # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
         self.GAMMA = 0.99
         self.ALPHA = 0.1
@@ -38,7 +38,7 @@ class TD_EGreedyAgent(ValueBasedAgent):
         # use policy to act at a certain state
         return
     
-    def maxi_action(self, state: State):
+    def maxi_action(self, state: State): # Give the maximum action value in a state and the corresponding action
         maxi = -100000
         action_maxi = None
         for a,x in self.qvalue[state].items():
@@ -59,10 +59,16 @@ class TD_EGreedyAgent(ValueBasedAgent):
         self.done = done
 
     def learn(self):
-        if self.previous_state != None:
-            self.qvalue[self.previous_state][self.previous_action] = self.qvalue[self.previous_state][self.previous_action] + self.ALPHA*(self.previous_reward+self.GAMMA*self.qvalue[state][action] - self.qvalue[self.previous_state][self.previous_action])
-
-    
+        if self.done == False:
+            # Learn
+            pass
+        else:
+            # Learn
+            pass
+        
+        self.previous_action = self.current_action
+        self.previous_state = self.current_state
+            
     def getQValue(self, state: State, action: Action) -> float:
         return self.qvalue[state][action]
 
