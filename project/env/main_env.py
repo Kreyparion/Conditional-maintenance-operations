@@ -5,7 +5,7 @@ from gym import Env
 from gym.spaces import Discrete, Space
 
 from project.env.items import Item
-
+from copy import deepcopy
 
 class CoreAction:
     """unit actions on items, listed in _list_actions ("preventive","corrective")
@@ -43,8 +43,7 @@ class CoreAction:
             raise IndexError("Index not corresponding to any Action")
 
     @classmethod
-    @property
-    def listCoreActions(self) -> List["Action"]:
+    def listCoreActions(self) -> List["CoreAction"]:
         """Generate the list of all Coreaction
 
         Returns:
@@ -53,6 +52,8 @@ class CoreAction:
         return [CoreAction(x) for x in self._list_actions]
 
     def __eq__(self, other: "CoreAction"):
+        if not isinstance(other, CoreAction):
+            return NotImplemented
         return self.coreaction == other.coreaction
 
     def __repr__(self):
@@ -78,43 +79,46 @@ class Action:
     """
 
     _limitationsList = [0.3, 0.1]
-    _limitations = dict()
-
-    def __init__(self, action: Union[Dict[CoreAction, int], None]) -> None:
-        self.ca_list = CoreAction.listCoreActions
-        for i, a in enumerate(self.ca_list):
-            self._limitations[str(a)] = self._limitationsList[i]
-
+    _ca_list = CoreAction.listCoreActions()
+    
+    @staticmethod
+    def _init_limitations(_ca_list:List[CoreAction],_limitationsList:List[float]):
+        limits = dict()
+        for i, a in enumerate(_ca_list):
+            limits[str(a)] = _limitationsList[i]
+        return limits
+    
+    _limitations = _init_limitations(_ca_list,_limitationsList)
+    
+    def __init__(self, action: Dict[CoreAction, int]) -> None:
         self.action = action
-        if action != None:
-            return
-        somme = 0
+        somme = 0.
         for a, x in action.items():
-            somme += self._limitations[a] * x
+            somme += self._limitations[str(a)] * x
         if somme > 1:
             raise ValueError("Too much use")
 
+
+    
     @staticmethod
-    def fromDictInt(action: Union[Dict[int, int], None]) -> "Action":
+    def fromDictInt(action: Dict[int, int]) -> "Action":
         """Generate an action from a dictionary of indexes (the order is defined by _list_actions in CoreAction)
 
         Args:
-            action (Union[Dict[int,int],None]): The dictionary with
+            action (Dict[int,int]): The dictionary with
                 - the keys corresponding to the index of the CoreAction
                 - the values to the number of use of the associatedCoreAction
 
         Returns:
             Action: The corresponding action
         """
-        if action == None:
-            return Action(action)
         res = dict()
         for a, x in action.items():
             res[CoreAction.fromNumber(a)] = x
         return Action(res)
 
     @classmethod
-    def fromListInt(self, action: Union[Dict[int, int], None]) -> "Action":
+    def fromListInt(self, action: List[int]) -> "Action":
         """Generate an action from a list (the order is defined by _list_actions in CoreAction)
 
         Args:
@@ -125,28 +129,42 @@ class Action:
         Returns:
             Action: The corresponding action
         """
-        self.ca_list = CoreAction.listCoreActions
-        if action == None:
-            return Action(action)
         res = dict()
         for i, x in enumerate(action):
-            res[str(self.ca_list[i])] = x
+            res[CoreAction(str(self._ca_list[i]))] = x
         return Action(res)
 
-    def listAction_aux(self, liste: List[int]) -> List["Action"]:
+    @classmethod
+    def ActionDoNothing(self):
+        """Action with all Core Actions set to 0"""
+        return self.fromListInt([0]*len(self._ca_list))
+
+    @classmethod
+    def _listAction_aux(self) -> List[List[int]]:
         """Auxilary function (recursive) for listAction"""
-        somme = 0
-        for a, x in zip(self.ca_list, liste):
-            somme += self._limitations[str(a)] * x
-        if somme > 1:
-            return []
-        else:
-            res = [Action.fromListInt(liste)]
-            for i in range(len(liste)):
-                new_liste = liste[:]
-                new_liste[i] += 1
-                res = res + self.listAction_aux(self, new_liste)
-            return res
+
+        def valide(liste):
+            somme = 0
+            for a, x in zip(self._ca_list, liste):
+                somme += self._limitations[str(a)] * x
+            if somme > 1:
+                return False
+            return True
+
+        res = [[0 for i in range(len(self._ca_list))]]
+        id = 0
+        while id < len(self._ca_list):
+            new_res = deepcopy(res)
+            for x in new_res:
+                a = x
+                while 1:
+                    a = deepcopy(a)
+                    a[id] += 1
+                    if not valide(a):
+                        break
+                    res = res + [a]
+            id += 1
+        return res
 
     @classmethod
     def listAction(self) -> List["Action"]:
@@ -155,8 +173,13 @@ class Action:
         Returns:
             List[Action]: List of all allowed actions
         """
-        return self.listAction_aux(self, [0] * len(self.ca_list))
+        return [self.fromListInt(x) for x in self._listAction_aux()]
 
+    def __eq__(self, other: "Action"):
+        if not isinstance(other, Action):
+            return NotImplemented
+        return self.action == other.action
+    
     def __str__(self):
         return str(self.action)
 
