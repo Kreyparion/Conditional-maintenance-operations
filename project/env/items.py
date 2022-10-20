@@ -18,8 +18,8 @@ class ABCItem(ABC):
     def reset(self) -> None:
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def productivity(self) -> float:
         """Returns the energy produced during a day."""
         raise NotImplementedError
