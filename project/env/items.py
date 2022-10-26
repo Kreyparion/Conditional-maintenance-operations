@@ -5,9 +5,9 @@ from typing import Callable
 class ABCItem(ABC):
     """Class that represents a single unit item (eg windmill)."""
 
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: int, wear: float = 0) -> None:
         self.id = id
-        self.wear = 0
+        self.wear = wear
 
     @abstractmethod
     def wearing_step(self) -> None:
