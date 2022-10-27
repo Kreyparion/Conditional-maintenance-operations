@@ -30,8 +30,8 @@ class Environnement:
         if self.continuous:
             raise RuntimeError("Runtime set to continuous")
         max_prods = [item.max_prod for item in self.items]
-        wear_ranges = [range(item.threshold) for item in self.items]
+        thresholds = [item.threshold for item in self.items]
         wearing_func = self.items[0].wearing_func
         return State.get_states(
-            max_prods=max_prods, wear_ranges=wear_ranges, wearing_func=wearing_func
+            max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
