@@ -3,7 +3,7 @@ from typing import List, Dict, Union, Tuple, Callable
 from project.env.actions import Action
 from project.env.states import State
 from project.env.items import Item
-
+from project.env.executions import execution
 
 class Environnement:
     def __init__(self, items: List[Item], continuous: bool = False) -> None:
@@ -14,10 +14,10 @@ class Environnement:
                 item.threshold = int(item.threshold)
 
     def reset(self) -> State:
-        pass
+        pass  # TODO@Paul
 
     def step(self, action: Action) -> Tuple[State, float, bool]:
-        pass  # TODO@Etienne: Pour l'appliquer sur state
+        pass  # TODO@Paul: Pour l'appliquer sur state
 
     def render(self) -> None:
         pass  # TODO@Théophile
@@ -36,7 +36,7 @@ class Environnement:
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
 
-    @classmethod
+    @staticmethod
     def from_list(
         continuous: bool,
         max_prods: List[float],
@@ -55,7 +55,7 @@ class Environnement:
         return Environnement(items, continuous)
 
     @classmethod
-    def from_floats(
+    def from_floats(self,
         continuous: bool,
         nb_items: int,
         max_prod: float,
@@ -64,4 +64,9 @@ class Environnement:
     ) -> "Environnement":
         max_prods = nb_items * [max_prod]
         thresholds = nb_items * [threshold]
-        return Environnement.from_list(continuous, max_prods, thresholds, wearing_func)
+        return self.from_list(continuous, max_prods, thresholds, wearing_func)
+    
+    @classmethod
+    def init(self,execution_type:str):
+        execution_properties = execution(execution_type)
+        return self.from_list(execution_properties[0],execution_properties[1],execution_properties[2],execution_properties[3])

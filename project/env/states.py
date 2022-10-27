@@ -18,7 +18,7 @@ class State:
 
     @classmethod
     def get_states(
-        self, max_prods: List[float], thresholds: List[float], wearing_func: Callable
+        self, thresholds: List[float], wearing_func: Callable, max_prods: List[float]
     ) -> List["State"]:
         """Method that returns all possible states in case the environment is discrete."""
         characteristics = []
@@ -53,7 +53,7 @@ class State:
         ]
         return possible_states
 
-    @classmethod
+    @staticmethod
     def from_lists(
         continuous: bool,
         max_prods: List[float],
@@ -80,4 +80,4 @@ class State:
                 zip(max_prods, thresholds, wears, nerfed_list)
             )
         ]
-        return items
+        return State(continuous,items)

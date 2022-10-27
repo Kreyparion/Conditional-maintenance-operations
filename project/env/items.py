@@ -38,19 +38,19 @@ class Item(ABCItem):
 
     Args:
         id (int): The item's id.
-        max_prod (float): The energy produced by the item at full capacity.
         wearing_func (Callable): The function returning wearing steps.
         threshold (float): If the wear of the item is greater than the threshold, it is stopped.
+        max_prod (float): The energy produced by the item at full capacity.
     """
 
     def __init__(
         self,
         id: int,
-        max_prod: float,
         threshold: float,
         wearing_func: Callable,
         wear: float = 0,
-        nerf: float = 1,
+        nerf: float = 0.75,
+        max_prod: float = 1.,
         is_nerfed: bool = False,
     ) -> None:
         super().__init__(id, wear, nerf, is_nerfed)

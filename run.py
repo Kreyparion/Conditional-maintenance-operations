@@ -46,7 +46,7 @@ if __name__ == "__main__":
     agent_name = args.agent
 
     # Create the environnement
-    env = Environnement(continuous=False)
+    env = Environnement.init("4d")
     # Create the agent
     agent = agents_map[agent_name](env)
     # Run the agent
