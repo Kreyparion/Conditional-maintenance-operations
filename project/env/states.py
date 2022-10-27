@@ -1,6 +1,7 @@
 from itertools import product
-from project.env.items import Item
 from typing import Callable, List, Dict
+
+from project.env.items import Item
 
 
 class State:
@@ -35,3 +36,33 @@ class State:
             for wears_possible in possibilities
         ]
         return possible_states
+
+    @classmethod
+    def from_lists(
+        continuous: bool,
+        max_prods: List[float],
+        thresholds: List[float],
+        wearing_func: Callable,
+        wears: List[float] = None,
+    ) -> "State":
+        if wears is None:
+            items = [
+                Item(
+                    i, max_prod=max_prod, threshold=threshold, wearing_func=wearing_func
+                )
+                for i, (max_prod, threshold) in enumerate(zip(max_prods, thresholds))
+            ]
+        else:
+            items = [
+                Item(
+                    i,
+                    max_prod=max_prod,
+                    threshold=threshold,
+                    wearing_func=wearing_func,
+                    wear=wear,
+                )
+                for i, (max_prod, threshold, wear) in enumerate(
+                    zip(max_prods, thresholds, wears)
+                )
+            ]
+        return items
