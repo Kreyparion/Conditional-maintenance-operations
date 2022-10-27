@@ -5,10 +5,11 @@ from typing import Callable
 class ABCItem(ABC):
     """Class that represents a single unit item (eg windmill)."""
 
-    def __init__(self, id: int, wear: float = 0, nerf: float = 1) -> None:
+    def __init__(self, id: int, wear: float = 0, nerf_value: float = 0.75) -> None:
         self.id = id
         self.wear = wear
-        self.nerf = nerf
+        self.is_nerfed = False
+        self.nerf_value = nerf_value
 
     @abstractmethod
     def wearing_step(self) -> None:
@@ -59,7 +60,12 @@ class Item(ABCItem):
 
     @property
     def productivity(self) -> float:
-        return self.nerf * self.max_prod if self.wear < self.threshold else 0.0
+        if self.is_nerfed:
+            return (
+                self.nerf_value * self.max_prod if self.wear < self.threshold else 0.0
+            )
+        return self.max_prod if self.wear < self.threshold else 0.0
 
     def reset(self) -> None:
         self.wear = 0
+        self.is_nerfed = False
