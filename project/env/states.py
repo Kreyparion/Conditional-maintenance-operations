@@ -18,22 +18,38 @@ class State:
 
     @classmethod
     def get_states(
-        self, max_prods: List[float], wear_ranges: List[range], wearing_func: Callable
+        self, max_prods: List[float], thresholds: List[float], wearing_func: Callable
     ) -> List["State"]:
         """Method that returns all possible states in case the environment is discrete."""
-        possibilities = product(*wear_ranges, [True, False])
+        characteristics = []
+        for threshold in thresholds:
+            characteristics.append(range(threshold + 1))
+            characteristics.append([True, False])
+        possibilities = list(product(*characteristics))
 
         possible_states = [
             State(
                 False,
                 [
-                    Item(i, max_prod, threshold, wearing_func)
-                    for i, (max_prod, threshold) in enumerate(
-                        zip(max_prods, wears_possible)
+                    Item(
+                        id=id,
+                        max_prod=max_prod,
+                        threshold=threshold,
+                        wearing_func=wearing_func,
+                        wear=wear,
+                        is_nerfed=is_nerfed,
+                    )
+                    for id, (max_prod, threshold, wear, is_nerfed) in enumerate(
+                        zip(
+                            max_prods,
+                            thresholds,
+                            possibilities[i],
+                            possibilities[i + 1],
+                        )
                     )
                 ],
             )
-            for wears_possible in possibilities
+            for i in range(len(possibilities) // 2)
         ]
         return possible_states
 

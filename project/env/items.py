@@ -51,8 +51,9 @@ class Item(ABCItem):
         wearing_func: Callable,
         wear: float = 0,
         nerf: float = 1,
+        is_nerfed: bool = False,
     ) -> None:
-        super().__init__(id, wear, nerf)
+        super().__init__(id, wear, nerf, is_nerfed)
         self.threshold = threshold
         self.wearing_func = wearing_func
         self.max_prod = max_prod
