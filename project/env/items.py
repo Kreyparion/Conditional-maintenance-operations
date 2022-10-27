@@ -5,9 +5,10 @@ from typing import Callable
 class ABCItem(ABC):
     """Class that represents a single unit item (eg windmill)."""
 
-    def __init__(self, id: int, wear: float = 0) -> None:
+    def __init__(self, id: int, wear: float = 0, nerf: float = 1) -> None:
         self.id = id
         self.wear = wear
+        self.nerf = nerf
 
     @abstractmethod
     def wearing_step(self) -> None:
@@ -36,9 +37,15 @@ class Item(ABCItem):
     """
 
     def __init__(
-        self, id: int, max_prod: float, threshold: float, wearing_func: Callable
+        self,
+        id: int,
+        max_prod: float,
+        threshold: float,
+        wearing_func: Callable,
+        wear: float = 0,
+        nerf: float = 1,
     ) -> None:
-        super().__init__(id)
+        super().__init__(id, wear, nerf)
         self.threshold = threshold
         self.wearing_func = wearing_func
         self.max_prod = max_prod
@@ -52,7 +59,7 @@ class Item(ABCItem):
 
     @property
     def productivity(self) -> float:
-        return self.max_prod if self.wear < self.threshold else 0.0
+        return self.nerf * self.max_prod if self.wear < self.threshold else 0.0
 
     def reset(self) -> None:
         self.wear = 0
