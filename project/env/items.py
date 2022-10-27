@@ -5,11 +5,17 @@ from typing import Callable
 class ABCItem(ABC):
     """Class that represents a single unit item (eg windmill)."""
 
-    def __init__(self, id: int, wear: float = 0, nerf_value: float = 0.75) -> None:
+    def __init__(
+        self,
+        id: int,
+        wear: float = 0,
+        nerf_value: float = 0.75,
+        is_nerfed: bool = False,
+    ) -> None:
         self.id = id
         self.wear = wear
-        self.is_nerfed = False
         self.nerf_value = nerf_value
+        self.is_nerfed = is_nerfed
 
     @abstractmethod
     def wearing_step(self) -> None:
