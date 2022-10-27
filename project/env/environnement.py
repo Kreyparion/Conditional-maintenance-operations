@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Tuple
+from typing import List, Dict, Union, Tuple, Callable
 
 from project.env.actions import Action
 from project.env.states import State
@@ -35,3 +35,33 @@ class Environnement:
         return State.get_states(
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
+
+    @classmethod
+    def from_list(
+        continuous: bool,
+        max_prods: List[float],
+        thresholds: List[float],
+        wearing_func: Callable,
+    ) -> "Environnement":
+        items = [
+            Item(
+                i,
+                max_prod=max_prod,
+                threshold=threshold,
+                wearing_func=wearing_func,
+            )
+            for i, (max_prod, threshold) in enumerate(zip(max_prods, thresholds))
+        ]
+        return Environnement(items, continuous)
+
+    @classmethod
+    def from_floats(
+        continuous: bool,
+        nb_items: int,
+        max_prod: float,
+        threshold: float,
+        wearing_func: Callable,
+    ) -> "Environnement":
+        max_prods = nb_items * [max_prod]
+        thresholds = nb_items * [threshold]
+        return Environnement.from_list(continuous, max_prods, thresholds, wearing_func)
