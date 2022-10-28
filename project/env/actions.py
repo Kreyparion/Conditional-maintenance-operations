@@ -8,13 +8,11 @@ class CoreAction:
         NameError: the action is not implemented
     """
 
-    _list_actions = ["preventive", "corrective"]
+    _list_actions = ["nerf","preventive", "corrective"]
 
     def __init__(self, action_type: str) -> None:
-        if action_type == self._list_actions[0]:
-            self.coreaction = self._list_actions[0]
-        elif action_type == self._list_actions[1]:
-            self.coreaction = self._list_actions[1]
+        if action_type in self._list_actions:
+            self.coreaction = action_type
         else:
             raise NameError("Action not existing")
 
@@ -31,7 +29,7 @@ class CoreAction:
         Returns:
             CoreAction: The associated object
         """
-        if i <= 1:
+        if i <= len(self._list_actions) and type(i)==int:
             return CoreAction(self._list_actions[i])
         else:
             raise IndexError("Index not corresponding to any Action")
@@ -72,12 +70,14 @@ class Action:
             - the values to the number of use of the associatedCoreAction
     """
 
-    _limitationsList = [0.3, 0.1]
+    _limitationsList = [0, 0.3, 0.1]
     _ca_list = CoreAction.listCoreActions()
     
     @staticmethod
     def _init_limitations(_ca_list:List[CoreAction],_limitationsList:List[float]):
         limits = dict()
+        if len(_limitationsList) != len(_ca_list):
+            raise IndexError("not the same length between possible actions and limitations")
         for i, a in enumerate(_ca_list):
             limits[str(a)] = _limitationsList[i]
         return limits
@@ -134,12 +134,15 @@ class Action:
         return self.fromListInt([0]*len(self._ca_list))
 
     @classmethod
-    def _listAction_aux(self) -> List[List[int]]:
+    def _listAction_aux(self,nb_items:int) -> List[List[int]]:
         """Auxilary function (recursive) for listAction"""
 
-        def valide(liste):
+        def valide(liste,nb_items:int):
             somme = 0
             for a, x in zip(self._ca_list, liste):
+                if a == self._ca_list[0]:
+                    if x >nb_items:
+                        return False
                 somme += self._limitations[str(a)] * x
             if somme > 1:
                 return False
@@ -154,20 +157,20 @@ class Action:
                 while 1:
                     a = deepcopy(a)
                     a[id] += 1
-                    if not valide(a):
+                    if not valide(a,nb_items):
                         break
                     res = res + [a]
             id += 1
         return res
 
     @classmethod
-    def listAction(self) -> List["Action"]:
+    def listAction(self,nb_items:int) -> List["Action"]:
         """Generate all possible actions allowed by the _limitationsList
 
         Returns:
             List[Action]: List of all allowed actions
         """
-        return [self.fromListInt(x) for x in self._listAction_aux()]
+        return [self.fromListInt(x) for x in self._listAction_aux(nb_items)]
 
     def __eq__(self, other: "Action"):
         if not isinstance(other, Action):
