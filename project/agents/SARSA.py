@@ -8,9 +8,9 @@ import gym
 
 class EpsilonGreedyAgent(Agent):
     
-    def __init__(self, env : gym.Env, **kwargs):
+    def __init__(self, env : Environnement, **kwargs):
         self.env = env
-        self.stateCrossActions = [[(state, action) for action in Environnement.getPossibleActions(state)] for state in Environnement.getEveryState()][1:]
+        self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
         self.GAMMA = 0.99
@@ -30,9 +30,9 @@ class EpsilonGreedyAgent(Agent):
         
         # Init QValue
         self.qvalue = dict()
-        for state in Environnement.getEveryState()[1:]:
+        for state in env.getEveryState():
             self.qvalue[state] = dict()
-            for action in Environnement.getPossibleActions(state):
+            for action in env.getPossibleActions(state):
                 self.qvalue[state][action] = 0
 
 
@@ -52,7 +52,7 @@ class EpsilonGreedyAgent(Agent):
     def policy(self,state:State):
         # define Epsilon greedy policy
         proba = random()
-        if proba < self.EPSILON:   
+        if proba < self.EPSILON:
             action = choice(list(self.qvalue[state].keys()))   # choice of a random action
         else:
             maxi,action = self.maxi_action(state)

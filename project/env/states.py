@@ -43,8 +43,8 @@ class State:
                         zip(
                             max_prods,
                             thresholds,
-                            possibilities[i],
-                            possibilities[i + 1],
+                            [possibilities[i][nb*2] for nb in range(len(thresholds))],
+                            [possibilities[i][nb*2+1] for nb in range(len(thresholds))],
                         )
                     )
                 ],
@@ -53,6 +53,10 @@ class State:
         ]
         return possible_states
 
+    @property
+    def nb_items(self):
+        return len(self.items)
+    
     @staticmethod
     def from_lists(
         continuous: bool,
@@ -81,3 +85,19 @@ class State:
             )
         ]
         return State(continuous,items)
+
+    def __eq__(self, other):
+        if not isinstance(other, State):
+            return NotImplemented
+        return self.items == other.items
+    
+    def __hash__(self) -> int:
+        wears = [item.threshold + 1 for item in self.items]
+        nerfeds = [item.is_nerfed for item in self.items]
+        return hash((tuple(wears), tuple(nerfeds)))
+    
+    def __str__(self) -> str:
+        return str(self.items)
+    
+    def __repr__(self) -> str:
+        return self.__str__()

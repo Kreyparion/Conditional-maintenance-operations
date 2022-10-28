@@ -76,3 +76,15 @@ class Item(ABCItem):
     def reset(self) -> None:
         self.wear = 0
         self.is_nerfed = False
+        
+    def __eq__(self, other):
+        return self.wear == other.wear and self.is_nerfed == other.is_nerfed and self.max_prod == other.max_prod and self.threshold == other.threshold
+    
+    def __hash__(self) -> int:
+        return (self.wear,self.is_nerfed,self.max_prod,self.threshold)
+    
+    def __str__(self) -> str:
+        return str((self.wear,self.is_nerfed,self.max_prod,self.threshold))
+    
+    def __repr__(self) -> str:
+        return self.__str__()
