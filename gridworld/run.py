@@ -3,7 +3,10 @@ from tp.gridworld_environnement import Env
 from tp.gridworld_environnement import parseOptions
 # AGENT
 from tp.agents.agent import Agent
-from tp.agents.SARSA import TD_EGreedyAgent
+from tp.agents.SARSA import EpsilonGreedyAgent
+from tp.agents.SARSA_expected import EpsilonGreedyAgent_expected
+from tp.agents.Qlearning import EpsilonGreedyAgent_Qlearning
+
 from tp.implemented_agents import agents_map
 # PYTHON
 import gym

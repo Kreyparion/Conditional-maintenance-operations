@@ -8,6 +8,6 @@ from tp.agents.Qlearning import EpsilonGreedyAgent_Qlearning
 agents_map = {
     "random": RandomAgent,
     "sarsa": EpsilonGreedyAgent,
-    "sarsa_expected":EpsilonGreedyAgent_expected
-    "Qlearning":EpsilonGreedyAgent_Qlearning"
+    "sarsa_expected":EpsilonGreedyAgent_expected,
+    "Qlearning":EpsilonGreedyAgent_Qlearning,
 }
