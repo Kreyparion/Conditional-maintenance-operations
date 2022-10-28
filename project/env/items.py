@@ -62,7 +62,7 @@ class Item(ABCItem):
         if self.wear < self.threshold:
             self.wear = min(
                 self.threshold,
-                self.wear + self.wearing_func(),
+                self.wearing_func(self.threshold,self.wear),
             )
 
     @property
