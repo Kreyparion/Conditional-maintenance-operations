@@ -12,7 +12,7 @@ class Environnement:
         items: List[Item],
         prev_efficiency: float,
         repair_thrs: float,
-        ship_cost: float,
+        ship_cost: float = 4,
         corr_cost: float = 4,
         prev_cost: float = 1,
         continuous: bool = False,
