@@ -18,3 +18,6 @@ class RandomAgent(Agent):
 
     def learn(self):
         pass
+    
+    def random(self):
+        pass
