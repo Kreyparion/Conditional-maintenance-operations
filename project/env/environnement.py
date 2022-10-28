@@ -12,11 +12,18 @@ class Environnement:
         items: List[Item],
         prev_efficiency: float,
         repair_thrs: float,
+        ship_cost: float,
+        corr_cost: float = 4,
+        prev_cost: float = 1,
         continuous: bool = False,
     ) -> None:
         self.continuous = continuous
         self.prev_efficiency = prev_efficiency
         self.repair_thrs = repair_thrs
+        self.ship_cost = ship_cost
+        self.corr_cost = corr_cost
+        self.prev_cost = prev_cost
+
         self.items = items
         if not continuous:
             for item in self.items:
@@ -76,7 +83,16 @@ class Environnement:
             self.items[index_tuple[0]].is_nerfed = True
             nerf_used += 1
 
-        return State(self.continuous, self.items), 0, False
+        return State(self.continuous, self.items), self.reward(nb_cor, nb_pre), False
+
+    def reward(self, nb_corrective, nb_preventif):
+        rew = 0
+        for item in self.items:
+            rew += item.productivity
+        rew -= self.ship_cost
+        rew -= nb_corrective * self.corr_cost
+        rew -= nb_preventif * self.prev_cost
+        return rew
 
     def render(self) -> None:
         pass  # TODO@Théophile
