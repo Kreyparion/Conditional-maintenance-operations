@@ -13,9 +13,11 @@ from argparse import ArgumentParser
 N_EPISODES = 100
 
 def train(agent : Agent, env : gym.Env, verbose : int = 1):
-
+    
     for episode in range(N_EPISODES):
         print(f"Episode {episode} starts.")
+        
+        agent.reset()
 
         state = env.reset()
         done = False
@@ -28,7 +30,8 @@ def train(agent : Agent, env : gym.Env, verbose : int = 1):
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)
-            agent.learn()
+            agent.learn_SARSA()
+            
 
             # Render environment for user to see
             env.render(agent)

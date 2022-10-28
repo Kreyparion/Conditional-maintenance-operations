@@ -19,6 +19,7 @@ class TD_EGreedyAgent(ValueBasedAgent):
         
         self.previous_action = None
         self.previous_state = None
+        self.previous_reward = 0
         
         self.current_action = None
         self.current_state = None
@@ -35,8 +36,8 @@ class TD_EGreedyAgent(ValueBasedAgent):
 
 
     def act(self, state: State, training = None):
-        # use policy to act at a certain state
-        return
+        # use policy to act at a certain state         
+        return self.policy(state)
     
     def maxi_action(self, state: State): # Give the maximum action value in a state and the corresponding action
         maxi = -100000
@@ -49,7 +50,12 @@ class TD_EGreedyAgent(ValueBasedAgent):
     
     def policy(self,state:State):
         # define Epsilon greedy policy
-        return
+        proba = random()
+        if proba < self.EPSILON:   
+            action = choice(list(self.qvalue[state].keys()))   # choice of a random action
+        else:
+            maxi,action = self.maxi_action(state)
+        return action
         
     
     def observe(self, state: State, action: Action, reward, next_state: State, done):
@@ -58,17 +64,86 @@ class TD_EGreedyAgent(ValueBasedAgent):
         self.current_reward = reward
         self.done = done
 
-    def learn(self):
-        if self.done == False:
-            # Learn
+    def learn_SARSA(self):
+        #Learn
+        if self.previous_state == None:
             pass
         else:
-            # Learn
-            pass
-        
+            current_Qvalue = self.getQValue(self.current_state,self.current_action)
+            previous_Qvalue = self.getQValue(self.previous_state,self.previous_action)
+            previous_Qvalue = previous_Qvalue + self.ALPHA*(self.previous_reward + self.GAMMA*current_Qvalue - previous_Qvalue)
+            self.qvalue[self.previous_state][self.previous_action] = previous_Qvalue
+            
+            if self.done == True:
+                # Learn
+                current_Qvalue = current_Qvalue + self.ALPHA*(self.current_reward - current_Qvalue)
+                self.qvalue[self.current_state][self.current_action] = current_Qvalue
+                
+                   
         self.previous_action = self.current_action
         self.previous_state = self.current_state
+        self.previous_reward = self.current_reward
+        
+    def learn_SARSA_expected(self):
+        #Learn
+        if self.previous_state == None:
+            pass
+        else:
+            current_Qvalue = self.getQValue(self.current_state,self.current_action)
+            previous_Qvalue = self.getQValue(self.previous_state,self.previous_action)
             
+            sum = 0
+            for a,x in self.qvalue[self.current_state].items():
+                if a == self.policy(self.current_state):
+                    sum = sum + (1-self.EPSILON)*x
+                else:
+                    sum = sum + self.EPSILON*x
+                            
+            previous_Qvalue = previous_Qvalue + self.ALPHA*(self.previous_reward + self.GAMMA*sum - previous_Qvalue)
+            self.qvalue[self.previous_state][self.previous_action] = previous_Qvalue
+            
+            if self.done == True:
+                # Learn
+                current_Qvalue = current_Qvalue + self.ALPHA*(self.current_reward - current_Qvalue)
+                self.qvalue[self.current_state][self.current_action] = current_Qvalue
+                
+                   
+        self.previous_action = self.current_action
+        self.previous_state = self.current_state
+        self.previous_reward = self.current_reward
+    
+    def learn_Q_learning(self):
+        #Learn
+        if self.previous_state == None:
+            pass
+        else:
+            Q_greedy,action_greedy = self.maxi_action(self.current_state)
+            current_Qvalue = self.getQValue(self.current_state,self.current_action)
+            previous_Qvalue = self.getQValue(self.previous_state,self.previous_action)
+            previous_Qvalue = previous_Qvalue + self.ALPHA*(self.previous_reward + self.GAMMA*Q_greedy - previous_Qvalue)
+            self.qvalue[self.previous_state][self.previous_action] = previous_Qvalue
+            
+            if self.done == True:
+                # Learn
+                current_Qvalue = current_Qvalue + self.ALPHA*(self.current_reward - current_Qvalue)
+                self.qvalue[self.current_state][self.current_action] = current_Qvalue
+                
+                   
+        self.previous_action = self.current_action
+        self.previous_state = self.current_state
+        self.previous_reward = self.current_reward
+        
     def getQValue(self, state: State, action: Action) -> float:
         return self.qvalue[state][action]
+    
+    def reset(self):
+        self.previous_action = None
+        self.previous_state = None
+        self.previous_reward = 0
+        
+        self.current_action = None
+        self.current_state = None
+        self.current_reward = 0
+    
+
 
