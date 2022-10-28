@@ -3,6 +3,7 @@ from tp.gridworld_environnement import Env
 from tp.gridworld_environnement import parseOptions
 # AGENT
 from tp.agents.agent import Agent
+from tp.agents.SARSA import TD_EGreedyAgent
 from tp.implemented_agents import agents_map
 # PYTHON
 import gym
@@ -30,7 +31,7 @@ def train(agent : Agent, env : gym.Env, verbose : int = 1):
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)
-            agent.learn_SARSA()
+            agent.learn()
             
 
             # Render environment for user to see

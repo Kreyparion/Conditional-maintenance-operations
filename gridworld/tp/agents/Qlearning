@@ -5,7 +5,7 @@ import gym
 import numpy as np
 
 
-class EpsilonGreedyAgent(ValueBasedAgent):
+class EpsilonGreedyAgent_Qlearning(ValueBasedAgent):
     
     def __init__(self, env : gym.Env, **kwargs):
         self.env = env
@@ -63,15 +63,17 @@ class EpsilonGreedyAgent(ValueBasedAgent):
         self.current_state = state
         self.current_reward = reward
         self.done = done
-
+        
+    
     def learn(self):
         #Learn
         if self.previous_state == None:
             pass
         else:
+            Q_greedy,action_greedy = self.maxi_action(self.current_state)
             current_Qvalue = self.getQValue(self.current_state,self.current_action)
             previous_Qvalue = self.getQValue(self.previous_state,self.previous_action)
-            previous_Qvalue = previous_Qvalue + self.ALPHA*(self.previous_reward + self.GAMMA*current_Qvalue - previous_Qvalue)
+            previous_Qvalue = previous_Qvalue + self.ALPHA*(self.previous_reward + self.GAMMA*Q_greedy - previous_Qvalue)
             self.qvalue[self.previous_state][self.previous_action] = previous_Qvalue
             
             if self.done == True:
@@ -97,6 +99,3 @@ class EpsilonGreedyAgent(ValueBasedAgent):
         self.current_action = None
         self.current_state = None
         self.current_reward = 0
-    
-
-

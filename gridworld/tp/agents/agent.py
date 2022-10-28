@@ -26,7 +26,14 @@ class Agent(ABC):
     @abstractmethod
     def learn(self):
         """Learn using the memory"""
-        pass    
+        pass 
+    
+    @abstractmethod
+    def reset(self):
+        """Reset the agent"""
+        pass 
+    
+       
 
 
 
