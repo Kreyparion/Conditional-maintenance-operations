@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # Create the environnement
     env = Environnement.init("3d")
-    env = Environnement(continuous=False)
+
     # Create the agent
     agent = agents_map[agent_name](env)
     # Run the agent

@@ -9,10 +9,9 @@ import gym
 class EpsilonGreedyAgent(Agent):
     
     def __init__(self, env : Environnement, **kwargs):
-    def __init__(self, env : Environnement, **kwargs):
+    
         self.env = env
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
-        self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()][1:]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
         self.GAMMA = 0.99
