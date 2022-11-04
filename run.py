@@ -4,6 +4,11 @@ from project.env.environnement import Environnement
 # AGENT
 from project.agents.agent import Agent
 from project.implemented_agents import agents_map
+from project.agents.SARSA import EpsilonGreedyAgent
+from project.agents.SARSA_expected import EpsilonGreedyAgent_expected
+from project.agents.Qlearning import EpsilonGreedyAgent_Qlearning
+from project.agents.random import RandomAgent
+
 
 # PYTHON
 from argparse import ArgumentParser
@@ -16,6 +21,8 @@ def train(agent : Agent, env : Environnement):
 
     for episode in range(N_EPISODES):
         print(f"Episode {episode} starts.")
+        
+        agent.reset()
 
         state = env.reset()
         done = False
@@ -46,7 +53,7 @@ if __name__ == "__main__":
     agent_name = args.agent
 
     # Create the environnement
-    env = Environnement.init("4d")
+    env = Environnement(continuous=False)
     # Create the agent
     agent = agents_map[agent_name](env)
     # Run the agent
