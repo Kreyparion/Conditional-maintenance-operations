@@ -1,6 +1,7 @@
+from os import stat
 from typing import List, Dict, Union, Tuple, Callable
 
-from project.env.actions import Action
+from project.env.actions import Action, CoreAction
 from project.env.states import State
 from project.env.items import Item
 from project.env.executions import execution
@@ -10,8 +11,8 @@ class Environnement:
     def __init__(
         self,
         items: List[Item],
-        prev_efficiency: float,
-        repair_thrs: float,
+        prev_efficiency: float=5,
+        repair_thrs: float = 0,
         ship_cost: float = 4,
         corr_cost: float = 4,
         prev_cost: float = 1,
@@ -46,9 +47,9 @@ class Environnement:
 
     def step(self, action: Action) -> Tuple[State, float, bool]:
         action_dict = action.action
-        nb_cor = action_dict["corrective"] if "corrective" in action_dict else 0
-        nb_pre = action_dict["preventive"] if "preventive" in action_dict else 0
-        nb_nerf = action_dict["nerf"] if "nerf" in action_dict else 0
+        nb_cor = action_dict[CoreAction("corrective")]
+        nb_pre = action_dict[CoreAction("preventive")]
+        nb_nerf = action_dict[CoreAction("nerf")]
         self.indexes = []
         for i, item in enumerate(self.items):
             self.indexes.append((i, item.wear, item.is_nerfed))
@@ -89,7 +90,8 @@ class Environnement:
         rew = 0
         for item in self.items:
             rew += item.productivity
-        rew -= self.ship_cost
+        if nb_corrective+nb_preventif>0:
+            rew -= self.ship_cost
         rew -= nb_corrective * self.corr_cost
         rew -= nb_preventif * self.prev_cost
         return rew
@@ -97,9 +99,8 @@ class Environnement:
     def render(self) -> None:
         pass  # TODO@Théophile
 
-    @classmethod
     def getPossibleActions(self, state: State) -> List[Action]:
-        return Action.listAction()
+        return Action.listAction(state.nb_items)
 
     def getEveryState(self) -> List[State]:
         if self.continuous:

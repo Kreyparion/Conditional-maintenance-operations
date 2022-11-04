@@ -9,7 +9,6 @@ from project.agents.SARSA_expected import EpsilonGreedyAgent_expected
 from project.agents.Qlearning import EpsilonGreedyAgent_Qlearning
 from project.agents.random import RandomAgent
 
-
 # PYTHON
 from argparse import ArgumentParser
 
@@ -31,7 +30,9 @@ def train(agent : Agent, env : Environnement):
             action = agent.act(state)
 
             # Action has effect on environment
+            print(action)
             next_state, reward, done = env.step(action)
+            print(reward)
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)
@@ -47,14 +48,17 @@ def train(agent : Agent, env : Environnement):
 if __name__ == "__main__":
     
     # Get args
+
     parser = ArgumentParser(description="Run a reinforcement learning agent")
     parser.add_argument("--agent", type=str, required=True, help="Agent to run")
     args = parser.parse_args()
     agent_name = args.agent
 
     # Create the environnement
+    env = Environnement.init("3d")
     env = Environnement(continuous=False)
     # Create the agent
     agent = agents_map[agent_name](env)
     # Run the agent
+    print(agent)
     train(agent, env)

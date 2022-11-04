@@ -9,9 +9,10 @@ from random import choice
 class RandomAgent(Agent):
     def __init__(self, env: Environnement, **kwargs):
         super().__init__(env, **kwargs)
+        self.env = env
 
     def act(self, state:State):
-        return choice(Environnement.getPossibleActions(state))
+        return choice(self.env.getPossibleActions(state))
 
     def observe(self, state:State, action:Action, reward:float, next_state:State, done:bool):
         pass
@@ -20,4 +21,7 @@ class RandomAgent(Agent):
         pass
     
     def random(self):
+        pass
+    
+    def reset(self):
         pass
