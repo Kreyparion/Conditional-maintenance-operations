@@ -62,3 +62,5 @@ if __name__ == "__main__":
     # Run the agent
     print(agent)
     train(agent, env)
+    
+    print("hello")
