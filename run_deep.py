@@ -31,7 +31,7 @@ from random import random, choice
 
 
 batch_size = 10
-N_epoch = 100
+N_epoch = 1000
          
                 
 # for training policy
@@ -67,8 +67,8 @@ def train_one_epoch(agent : Agent, env : Environnement,state):
         # Update state
         state = next_state
     
-    print(reward)
-    print(action)
+    print("reward:", reward)
+    print("action", action)
 
     agent.learn()
     return state
