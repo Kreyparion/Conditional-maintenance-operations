@@ -26,7 +26,6 @@ class State:
             characteristics.append(range(threshold + 1))
             characteristics.append([True, False])
         possibilities = list(product(*characteristics))
-
         possible_states = [
             State(
                 False,
@@ -49,10 +48,14 @@ class State:
                     )
                 ],
             )
-            for i in range(len(possibilities) // 2)
+            for i in range(len(possibilities))
         ]
         return possible_states
 
+    def wearing_step(self) -> None:
+        for i in range(len(self.items)):
+            self.items[i].wearing_step()
+    
     @property
     def nb_items(self):
         return len(self.items)

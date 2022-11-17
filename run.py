@@ -30,9 +30,7 @@ def train(agent : Agent, env : Environnement):
             action = agent.act(state)
 
             # Action has effect on environment
-            print(action)
             next_state, reward, done = env.step(action)
-            print(reward)
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)

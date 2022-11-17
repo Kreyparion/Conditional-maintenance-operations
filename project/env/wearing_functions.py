@@ -40,7 +40,7 @@ def discrete_wearing_function()-> Tuple[float,Callable]:
         q=0.02
         s=threshold
         assert wear <=s
-        A=markov_matrice(s,p,q)
+        A=markov_matrice(s+1,p,q)
         w=wear
         L=A[w]
         list_probas=[]
