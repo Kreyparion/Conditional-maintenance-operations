@@ -70,7 +70,7 @@ class Action:
             - the values to the number of use of the associatedCoreAction
     """
 
-    _limitationsList = [0, 0.3, 0.1]
+    _limitationsList = [0, 0.1, 0.3]
     _ca_list = CoreAction.listCoreActions()
     
     @staticmethod

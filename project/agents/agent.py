@@ -29,7 +29,7 @@ class Agent(ABC):
     
     @abstractmethod
     def reset(self):
-        """Learn using the memory"""
+        """Reset the agent"""
         pass    
  
 
