@@ -6,17 +6,20 @@ from project.env.states import State
 from project.env.items import Item
 from project.env.executions import execution
 
+import matplotlib.pyplot as plt
+import numpy as np
+import wandb
 
 class Environnement:
     def __init__(
         self,
         items: List[Item],
-        prev_efficiency: float=5,
+        continuous: bool = False,
+        prev_efficiency: float=2,
         repair_thrs: float = 0,
         ship_cost: float = 4,
         corr_cost: float = 4,
         prev_cost: float = 1,
-        continuous: bool = False,
     ) -> None:
         self.continuous = continuous
         self.prev_efficiency = prev_efficiency
@@ -24,8 +27,25 @@ class Environnement:
         self.ship_cost = ship_cost
         self.corr_cost = corr_cost
         self.prev_cost = prev_cost
-
+        
+        self.step_number = 0
+        self.last_reward = 0
+        self.last_500_rewards = []
+        self.line1 = []
+        self.fig = None
+        wandb.init(project="proj_rl")
+        wandb.config = {
+            "number_of_items": len(items),
+            "continuous": continuous,
+            "prev_efficiency": prev_efficiency,
+            "repair_thrs": repair_thrs,
+            "ship_cost": ship_cost,
+            "corr_cost": corr_cost,
+            "prev_cost": prev_cost,
+        }
         self.items = items
+        self.state = None
+        
         if not continuous:
             for item in self.items:
                 item.threshold = int(item.threshold)
@@ -43,16 +63,20 @@ class Environnement:
             item.wear = init_wear
             item.is_nerfed = init_nerf
 
-        return State(self.continuous, self.items)
+        self.state = State(self.continuous, self.items)
+        return self.state
 
     def step(self, action: Action) -> Tuple[State, float, bool]:
         action_dict = action.action
         nb_cor = action_dict[CoreAction("corrective")]
         nb_pre = action_dict[CoreAction("preventive")]
         nb_nerf = action_dict[CoreAction("nerf")]
+        self.items = self.state.items
+        for item in self.items:
+            item.wearing_step()
         self.indexes = []
         for i, item in enumerate(self.items):
-            self.indexes.append((i, item.wear, item.is_nerfed))
+            self.indexes.append((i, item.wear))
 
         self.indexes.sort(
             key=lambda x: -x[1]
@@ -62,29 +86,36 @@ class Environnement:
             item_index = index_tuple[0]
             if (
                 cor_act_used < nb_cor
-                and index_tuple[1] == self.items[item_index].threshold
+                and self.items[item_index].wear == self.items[item_index].threshold
             ):  # The item is shut down and we can fix it
                 self.items[item_index].wear = self.repair_thrs
                 cor_act_used += 1
-            elif (
+            if (
                 pre_act_used < nb_pre
-                and index_tuple[1] != self.items[item_index].threshold
+                and self.items[item_index].wear != self.items[item_index].threshold
+                and self.items[item_index].wear != 0
             ):
                 wear = self.items[item_index].wear
-                self.items[item_index].wear = max(
-                    self.repair_thrs, wear - self.prev_efficiency
-                )
+                self.items[item_index].wear = max(self.repair_thrs, wear - self.prev_efficiency)
                 pre_act_used += 1
 
-        self.indexes.sort(key=lambda x: (x[2], -x[1]))
+        self.indexes = []
+        for i, item in enumerate(self.items):
+            self.indexes.append((i, item.wear, item.is_nerfed))
+        self.indexes.sort(key=lambda x: -x[1])
         nerf_used = 0
+        for i in range(len(self.items)):
+            self.items[i].is_nerfed = False
         for index_tuple in self.indexes:
             if nerf_used >= nb_nerf:
                 break
             self.items[index_tuple[0]].is_nerfed = True
             nerf_used += 1
 
-        return State(self.continuous, self.items), self.reward(nb_cor, nb_pre), False
+        self.step_number += 1
+        self.state = State(self.continuous, self.items)
+        self.last_reward = self.reward(nb_cor, nb_pre)
+        return self.state, self.reward(nb_cor, nb_pre), False
 
     def reward(self, nb_corrective, nb_preventif):
         rew = 0
@@ -96,9 +127,14 @@ class Environnement:
         rew -= nb_preventif * self.prev_cost
         return rew
 
+    
     def render(self) -> None:
-        pass  # TODO@Théophile
-
+        self.last_500_rewards.append(self.last_reward)
+        if len(self.last_500_rewards) > 500:
+            self.last_500_rewards.pop(0)
+        if self.step_number % 10 == 0:
+            wandb.log({"reward_500": np.mean(self.last_500_rewards)})
+        
     def getPossibleActions(self, state: State) -> List[Action]:
         return Action.listAction(state.nb_items)
 
