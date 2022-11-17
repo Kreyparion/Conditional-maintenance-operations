@@ -1,5 +1,17 @@
 # Condition-based maintenance operations in a large-scale industrial system
 
+## Lancer le code
+
+Utiliser la commande `python run.py` et spécifier l'agent à lancer sur l'environnement :
+Les différents agents sont répertoriés dans implemented_agents
+
+Ex :
+```
+python run.py --agent=sarsa
+```
+Lancera l'agent sarsa sur l'environnement
+
+
 ## Planning
 
 Séances les jeudi matin 8h30-12h30
