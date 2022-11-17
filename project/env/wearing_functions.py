@@ -1,6 +1,7 @@
 from typing import Callable, Tuple 
 import numpy as np
 from random import choices
+import math
 
 def wearing_function(function_type:str) -> Tuple[float,Callable]:
     linked_functions = {
@@ -13,16 +14,17 @@ def wearing_function(function_type:str) -> Tuple[float,Callable]:
         raise NameError("wrong function name")
     return linked_functions[function_type]
 
+
 def wearing_prob(i,j,p,q,s):      #probability to go from state i to j
     if i==j:
-        if i!=s-1:
-            return 1-p-q
+        if i!=s:
+            return math.exp(-i*p)+math.exp(-i**2*p)
         else:
             return 1
     elif j==i+1:
-        return p
-    elif j==s-1 and i<s-2:
-        return q
+        return 1 - math.exp(-i*p)
+    elif j==s and i<s-1:
+        return 1 - math.exp(-i**2*q)
     else:
         return 0
 
@@ -55,10 +57,24 @@ def discrete_wearing_function()-> Tuple[float,Callable]:
 
 def discrete_wearing_function2()-> Tuple[float,Callable]:
     """ return threshold and function"""
-    def fun():
-        pass
+    def wearing_func(threshold,wear):
+        A=np.array([
+    [0.9848, 0.015, 0, 0, 0.0002],
+    [0, 0.989, 0.01, 0, 0.001],
+    [0, 0, 0.98, 0.005, 0.015],
+    [0, 0, 0, 0.94, 0.06],
+    [0, 0, 0, 0, 1]
+    ])
+        w=wear
+        L=A[w]
+        list_probas=[]
+        for i in range(len(L)):
+            list_probas.append(L[i])
+        choix=choices(range(len(L)),weights=list_probas)
+        wear=choix[0]
+        return wear
     threshold = 5
-    return threshold,fun
+    return threshold,wearing_func
 
 def continuous_wearing_function()-> Tuple[float,Callable]:
     """ return threshold and function"""
