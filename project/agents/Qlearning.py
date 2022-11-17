@@ -2,20 +2,20 @@ from project.agents.agent import Agent
 from project.env.environnement import Environnement
 from project.env.states import State
 from project.env.actions import Action
+from project.tools.logger import logger, init_logger
 from random import random,choice
-import gym
 
 
 class EpsilonGreedyAgent_Qlearning(Agent):
     
-    def __init__(self, env : gym.Env, **kwargs):
+    def __init__(self, env : Environnement, **kwargs):
         self.env = env
-        self.stateCrossActions = [[(state, action) for action in Environnement.getPossibleActions(state)] for state in Environnement.getEveryState()][1:]
+        self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
-        self.GAMMA = 0.99
-        self.ALPHA = 0.1
-        self.EPSILON = 0.1
+        self.GAMMA = 0.9999
+        self.ALPHA = 0.05
+        self.EPSILON = 0.003
         
         
         self.previous_action = None
@@ -30,9 +30,9 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         
          # Init QValue
         self.qvalue = dict()
-        for state in Environnement.getEveryState()[1:]:
+        for state in self.env.getEveryState():
             self.qvalue[state] = dict()
-            for action in Environnement.getPossibleActions(state):
+            for action in self.env.getPossibleActions(state):
                 self.qvalue[state][action] = 0
 
 
@@ -65,10 +65,15 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         self.current_state = state
         self.current_reward = reward
         self.done = done
+        logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, next_state={next_state}, done={done}")
+
         
     
     def learn(self):
         #Learn
+        if self.env.step_number % 5000 == 4999:
+            self.EPSILON *= 0.99
+            logger.info(f"Step : {self.env.step_number-1} Agent learns: EPSILON={self.EPSILON}")
         if self.previous_state == None:
             pass
         else:

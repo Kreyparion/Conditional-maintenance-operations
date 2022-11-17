@@ -2,14 +2,15 @@ from project.agents.agent import Agent
 from project.env.environnement import Environnement
 from project.env.states import State
 from project.env.actions import Action
+from project.tools.logger import logger, init_logger
 from random import random,choice
-import gym
 
 
 class EpsilonGreedyAgent(Agent):
     
     def __init__(self, env : Environnement, **kwargs):
         self.env = env
+        init_logger(logger)
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
@@ -58,12 +59,13 @@ class EpsilonGreedyAgent(Agent):
             maxi,action = self.maxi_action(state)
         return action
         
-    
+
     def observe(self, state: State, action: Action, reward, next_state: State, done):
         self.current_action = action
         self.current_state = state
         self.current_reward = reward
         self.done = done
+        logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, next_state={next_state}, done={done}")
 
     def learn(self):
         #Learn
