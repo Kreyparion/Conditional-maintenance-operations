@@ -66,7 +66,7 @@ def train_one_epoch(agent : Agent, env : Environnement,state):
 
         # Update state
         state = next_state
-        
+    
     print(reward)
     print(action)
 
