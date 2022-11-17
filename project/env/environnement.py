@@ -50,18 +50,17 @@ class Environnement:
             for item in self.items:
                 item.threshold = int(item.threshold)
 
-        self._initial_wears, self._initial_nerfs = [], []
+        self._initial_wears = []
 
         for item in self.items:
             self._initial_wears.append(item.wear)
-            self._initial_nerfs.append(item.is_nerfed)
+
 
     def reset(self) -> State:
-        for item, init_wear, init_nerf in zip(
-            self.items, self._initial_wears, self._initial_nerfs
+        for item, init_wear in zip(
+            self.items, self._initial_wears
         ):
             item.wear = init_wear
-            item.is_nerfed = init_nerf
 
         self.state = State(self.continuous, self.items)
         return self.state
@@ -70,7 +69,6 @@ class Environnement:
         action_dict = action.action
         nb_cor = action_dict[CoreAction("corrective")]
         nb_pre = action_dict[CoreAction("preventive")]
-        nb_nerf = action_dict[CoreAction("nerf")]
         self.items = self.state.items
         for item in self.items:
             item.wearing_step()
@@ -99,19 +97,8 @@ class Environnement:
                 self.items[item_index].wear = max(self.repair_thrs, wear - self.prev_efficiency)
                 pre_act_used += 1
 
-        self.indexes = []
-        for i, item in enumerate(self.items):
-            self.indexes.append((i, item.wear, item.is_nerfed))
-        self.indexes.sort(key=lambda x: -x[1])
-        nerf_used = 0
-        for i in range(len(self.items)):
-            self.items[i].is_nerfed = False
-        for index_tuple in self.indexes:
-            if nerf_used >= nb_nerf:
-                break
-            self.items[index_tuple[0]].is_nerfed = True
-            nerf_used += 1
 
+        self.items.sort(key=lambda x: -x.wear)
         self.step_number += 1
         self.state = State(self.continuous, self.items)
         self.last_reward = self.reward(nb_cor, nb_pre)
@@ -132,7 +119,7 @@ class Environnement:
         self.last_500_rewards.append(self.last_reward)
         if len(self.last_500_rewards) > 500:
             self.last_500_rewards.pop(0)
-        if self.step_number % 10 == 0:
+        if self.step_number % 500 == 0:
             wandb.log({"reward_500": np.mean(self.last_500_rewards)})
         
     def getPossibleActions(self, state: State) -> List[Action]:

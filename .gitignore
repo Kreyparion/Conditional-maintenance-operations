@@ -2,6 +2,7 @@
 .env
 
 wandb/
+env.log
 __pycache__/
 
 .mypy_cache

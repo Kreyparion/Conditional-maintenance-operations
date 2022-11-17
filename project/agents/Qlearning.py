@@ -11,12 +11,13 @@ class EpsilonGreedyAgent_Qlearning(Agent):
     def __init__(self, env : Environnement, **kwargs):
         self.env = env
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
+        init_logger(logger)
+        logger.info(f"Size of State-Action space {len(self.stateCrossActions)}")
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
         self.GAMMA = 0.9999
-        self.ALPHA = 0.05
-        self.EPSILON = 0.003
-        
+        self.ALPHA = 0.1
+        self.EPSILON = 0.2
         
         self.previous_action = None
         self.previous_state = None
@@ -65,14 +66,15 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         self.current_state = state
         self.current_reward = reward
         self.done = done
-        logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, next_state={next_state}, done={done}")
+        if action != Action.ActionDoNothing():
+            logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, next_state={next_state}, done={done}")
 
         
     
     def learn(self):
         #Learn
         if self.env.step_number % 5000 == 4999:
-            self.EPSILON *= 0.99
+            self.EPSILON *= 0.999
             logger.info(f"Step : {self.env.step_number-1} Agent learns: EPSILON={self.EPSILON}")
         if self.previous_state == None:
             pass

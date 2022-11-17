@@ -1,5 +1,6 @@
 from itertools import product
 from typing import Callable, List, Dict
+from copy import deepcopy
 
 from project.env.items import Item
 
@@ -21,11 +22,28 @@ class State:
         self, thresholds: List[float], wearing_func: Callable, max_prods: List[float]
     ) -> List["State"]:
         """Method that returns all possible states in case the environment is discrete."""
-        characteristics = []
-        for threshold in thresholds:
-            characteristics.append(range(threshold + 1))
-            characteristics.append([True, False])
-        possibilities = list(product(*characteristics))
+        possibilities = [[0 for _ in range(len(thresholds))]]
+        id = 0
+        while id < len(thresholds):
+            new_possibilities = deepcopy(possibilities)
+            for x in new_possibilities:
+                a = x
+                while 1:
+                    a = deepcopy(a)
+                    if a[id] < thresholds[id]:
+                        if id != 0:
+                            if a[id]<a[id-1]:
+                                a[id] += 1
+                            else:
+                                break
+                        else:
+                            a[id] += 1
+                    else:
+                        break
+                    new_possibilities = new_possibilities + [a]
+            id += 1
+            possibilities = new_possibilities
+        
         possible_states = [
             State(
                 False,
@@ -36,14 +54,12 @@ class State:
                         threshold=threshold,
                         wearing_func=wearing_func,
                         wear=wear,
-                        is_nerfed=is_nerfed,
                     )
-                    for id, (max_prod, threshold, wear, is_nerfed) in enumerate(
+                    for id, (max_prod, threshold, wear) in enumerate(
                         zip(
                             max_prods,
                             thresholds,
-                            [possibilities[i][nb*2] for nb in range(len(thresholds))],
-                            [possibilities[i][nb*2+1] for nb in range(len(thresholds))],
+                            [possibilities[i][nb] for nb in range(len(thresholds))],
                         )
                     )
                 ],
@@ -67,12 +83,10 @@ class State:
         thresholds: List[float],
         wearing_func: Callable,
         wears: List[float] = None,
-        nerfed_list: List[bool] = None,
     ) -> "State":
         if wears is None:
             wears = [0] * len(max_prods)
-        if nerfed_list is None:
-            nerfed_list = [False] * len(max_prods)
+
 
         items = [
             Item(
@@ -81,10 +95,9 @@ class State:
                 threshold=threshold,
                 wearing_func=wearing_func,
                 wear=wear,
-                is_nerfed=is_nerfed,
             )
-            for i, (max_prod, threshold, wear, is_nerfed) in enumerate(
-                zip(max_prods, thresholds, wears, nerfed_list)
+            for i, (max_prod, threshold, wear) in enumerate(
+                zip(max_prods, thresholds, wears)
             )
         ]
         return State(continuous,items)
@@ -95,9 +108,8 @@ class State:
         return self.items == other.items
     
     def __hash__(self) -> int:
-        wears = [item.threshold + 1 for item in self.items]
-        nerfeds = [item.is_nerfed for item in self.items]
-        return hash((tuple(wears), tuple(nerfeds)))
+        wears = [item.wear for item in self.items]
+        return hash(tuple(wears))
     
     def __str__(self) -> str:
         return str(self.items)

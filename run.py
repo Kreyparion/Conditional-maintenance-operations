@@ -7,8 +7,6 @@ from project.implemented_agents import agents_map
 # PYTHON
 from argparse import ArgumentParser
 
-
-
 N_EPISODES = 100
 
 def train(agent : Agent, env : Environnement):
@@ -47,6 +45,7 @@ if __name__ == "__main__":
 
     # Create the environnement
     env = Environnement.init("3d")
+    print(env.getEveryState())
     # Create the agent
     agent = agents_map[agent_name](env)
     # Run the agent

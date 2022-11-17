@@ -9,13 +9,9 @@ class ABCItem(ABC):
         self,
         id: int,
         wear: float = 0,
-        nerf_value: float = 0.75,
-        is_nerfed: bool = False,
     ) -> None:
         self.id = id
         self.wear = wear
-        self.nerf_value = nerf_value
-        self.is_nerfed = is_nerfed
 
     @abstractmethod
     def wearing_step(self) -> None:
@@ -49,11 +45,9 @@ class Item(ABCItem):
         threshold: float,
         wearing_func: Callable,
         wear: float = 0,
-        nerf: float = 0.75,
         max_prod: float = 1.,
-        is_nerfed: bool = False,
     ) -> None:
-        super().__init__(id, wear, nerf, is_nerfed)
+        super().__init__(id, wear)
         self.threshold = threshold
         self.wearing_func = wearing_func
         self.max_prod = max_prod
@@ -67,24 +61,19 @@ class Item(ABCItem):
 
     @property
     def productivity(self) -> float:
-        if self.is_nerfed:
-            return (
-                self.nerf_value * self.max_prod if self.wear < self.threshold else 0.0
-            )
         return self.max_prod if self.wear < self.threshold else 0.0
 
     def reset(self) -> None:
         self.wear = 0
-        self.is_nerfed = False
         
     def __eq__(self, other):
-        return self.wear == other.wear and self.is_nerfed == other.is_nerfed and self.max_prod == other.max_prod and self.threshold == other.threshold
+        return self.wear == other.wear and self.max_prod == other.max_prod and self.threshold == other.threshold
     
     def __hash__(self) -> int:
-        return (self.wear,self.is_nerfed,self.max_prod,self.threshold)
+        return self.wear #,self.max_prod,self.threshold)
     
     def __str__(self) -> str:
-        return str((self.wear,self.is_nerfed,self.max_prod,self.threshold))
+        return str(self.wear)
     
     def __repr__(self) -> str:
         return self.__str__()

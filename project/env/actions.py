@@ -8,7 +8,7 @@ class CoreAction:
         NameError: the action is not implemented
     """
 
-    _list_actions = ["nerf","preventive", "corrective"]
+    _list_actions = ["preventive", "corrective"]
 
     def __init__(self, action_type: str) -> None:
         if action_type in self._list_actions:
@@ -70,7 +70,7 @@ class Action:
             - the values to the number of use of the associatedCoreAction
     """
 
-    _limitationsList = [0, 0.3, 0.1]
+    _limitationsList = [0.1, 0.3]
     _ca_list = CoreAction.listCoreActions()
     
     @staticmethod
@@ -139,10 +139,11 @@ class Action:
 
         def valide(liste,nb_items:int):
             somme = 0
+            nb_act = 0
             for a, x in zip(self._ca_list, liste):
-                if a == self._ca_list[0]:
-                    if x >nb_items:
-                        return False
+                nb_act = nb_act + x
+                if nb_act > nb_items:
+                    return False
                 somme += self._limitations[str(a)] * x
             if somme > 1:
                 return False

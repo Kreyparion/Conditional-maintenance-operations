@@ -4,7 +4,7 @@ import logging
 FILE = "env.log"
 IS_KAGGLE = os.path.exists("/kaggle_simulations")
 LEVEL = logging.DEBUG if not IS_KAGGLE else logging.INFO
-LOGGING_ENABLED = False
+LOGGING_ENABLED = True
 
 
 class _FileHandler(logging.FileHandler):
