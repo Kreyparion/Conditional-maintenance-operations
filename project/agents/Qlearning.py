@@ -17,7 +17,7 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         # Hyperparameters
         self.GAMMA = 0.9999
         self.ALPHA = 0.1
-        self.EPSILON = 0.2
+        self.EPSILON = 0.15
         
         self.previous_action = None
         self.previous_state = None
@@ -73,7 +73,7 @@ class EpsilonGreedyAgent_Qlearning(Agent):
     
     def learn(self):
         #Learn
-        if self.env.step_number % 5000 == 4999:
+        if self.env.step_number % 500 == 499:
             self.EPSILON *= 0.999
             logger.info(f"Step : {self.env.step_number-1} Agent learns: EPSILON={self.EPSILON}")
         if self.previous_state == None:
