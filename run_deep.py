@@ -17,12 +17,9 @@ from argparse import ArgumentParser
 
 import torch
 import torch.nn as nn
-from torch.distributions.categorical import Categorical
 from torch.optim import Adam
 import numpy as np
-from gym.spaces import Discrete, Box
-from torchtyping import TensorType, patch_typeguard
-from typeguard import typechecked
+from torchtyping import TensorType
 from project.agents.agent import Agent
 from project.env.environnement import Environnement
 from project.env.states import State
@@ -31,7 +28,7 @@ from random import random, choice
 
 
 batch_size = 10
-N_epoch = 1000
+N_epoch = 100
          
                 
 # for training policy
@@ -94,9 +91,6 @@ def train(N_epoch):
 train(N_epoch)
 
 
-
-
-
 """
 
 
@@ -118,12 +112,4 @@ if __name__ == "__main__":
     print(agent)
     train(agent, env)
 
-#test
-
-reseau = mlp(sizes=[10,32,20])
-
-batch = torch.ones([2,10])
-
-print(batch.shape)
-print(reseau(batch))
 """
