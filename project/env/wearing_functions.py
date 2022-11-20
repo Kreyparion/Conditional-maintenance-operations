@@ -73,7 +73,7 @@ def discrete_wearing_function2()-> Tuple[float,Callable]:
         choix=choices(range(len(L)),weights=list_probas)
         wear=choix[0]
         return wear
-    threshold = 5
+    threshold = 4
     return threshold,wearing_func
 
 def continuous_wearing_function()-> Tuple[float,Callable]:

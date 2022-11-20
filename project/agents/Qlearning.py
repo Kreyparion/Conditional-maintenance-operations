@@ -12,7 +12,7 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         self.env = env
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         init_logger(logger)
-        logger.info(f"Size of State-Action space {len(self.stateCrossActions)}")
+        logger.info(f"Size of State-Action space {(len(self.stateCrossActions),len(self.stateCrossActions[0]))}")
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
         self.GAMMA = 0.9999
