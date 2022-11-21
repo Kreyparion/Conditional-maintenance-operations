@@ -8,6 +8,7 @@ from project.agents.SARSA import EpsilonGreedyAgent
 from project.agents.SARSA_expected import EpsilonGreedyAgent_expected
 from project.agents.Qlearning import EpsilonGreedyAgent_Qlearning
 from project.agents.random import RandomAgent
+from project.agents.SARSA_expected_memory import EpsilonGreedyAgent_memory
 
 # PYTHON
 from argparse import ArgumentParser
@@ -42,6 +43,12 @@ def train(agent : Agent, env : Environnement):
             # Update state
             state = next_state
 
+
+"""
+env = Environnement.init("3d")
+agent = EpsilonGreedyAgent(env)
+train(agent,env)
+"""
 
 if __name__ == "__main__":
     
