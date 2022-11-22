@@ -36,7 +36,7 @@ class EpsilonGreedyAgent(Agent):
             self.qvalue[state] = dict()
             for action in env.getPossibleActions(state):
                 self.qvalue[state][action] = 0
-
+        
 
     def act(self, state: State, training = None):
         # use policy to act at a certain state         

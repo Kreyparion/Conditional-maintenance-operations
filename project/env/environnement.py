@@ -8,7 +8,7 @@ from project.env.executions import execution
 
 import matplotlib.pyplot as plt
 import numpy as np
-#import wandb
+
 
 class Environnement:
     def __init__(
@@ -33,16 +33,6 @@ class Environnement:
         self.last_500_rewards = []
         self.line1 = []
         self.fig = None
-        #wandb.init(project="proj_rl")
-        #wandb.config = {
-        #    "number_of_items": len(items),
-        #    "continuous": continuous,
-        #    "prev_efficiency": prev_efficiency,
-        #    "repair_thrs": repair_thrs,
-        #    "ship_cost": ship_cost,
-        #    "corr_cost": corr_cost,
-        #    "prev_cost": prev_cost,
-        #}
         self.items = items
         self.state = None
         
@@ -132,9 +122,7 @@ class Environnement:
         self.last_500_rewards.append(self.last_reward)
         if len(self.last_500_rewards) > 500:
             self.last_500_rewards.pop(0)
-        if self.step_number % 10 == 0:
-            pass
-            #wandb.log({"reward_500": np.mean(self.last_500_rewards)})
+        
         
     def getPossibleActions(self, state: State) -> List[Action]:
         return Action.listAction(state.nb_items)

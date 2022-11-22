@@ -15,7 +15,8 @@ from argparse import ArgumentParser
 
 
 
-N_EPISODES = 100
+N_EPISODES = 10
+batch_size = 100
 
 def train(agent : Agent, env : Environnement):
 
@@ -26,27 +27,37 @@ def train(agent : Agent, env : Environnement):
 
         state = env.reset()
         done = False
+        batch = 0
+        
         while not done:
             # Agent takes action
             action = agent.act(state)
-
+        
             # Action has effect on environment
             next_state, reward, done = env.step(action)
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)
+            
             agent.learn()
-
+            
             # Render environment for user to see
             env.render()
 
             # Update state
             state = next_state
+            
+            batch += 1
+            
+            if batch == batch_size:
+                done = True
+                
+        print("Episode:", episode, reward)
 
 
-"""
+
 env = Environnement.init("3d")
-agent = EpsilonGreedyAgent(env)
+agent = EpsilonGreedyAgent_memory(env)
 train(agent,env)
 """
 
@@ -67,3 +78,4 @@ if __name__ == "__main__":
     # Run the agent
     print(agent)
     train(agent, env)
+"""
