@@ -46,6 +46,7 @@ class DeepLearningAgent(Agent):
         self.render = render
         self.n_batch = 0
         self.batch_size = batch_size
+        self.epsilon = 0.1
 
         self.obs_dim = len(self.states)   # dimension du vecteur d'entrée = nombre d'états possibles
         # vecteur d'entrée = vecteur avec un 1 quand l'état est celui dans lequel on est  
@@ -107,7 +108,7 @@ class DeepLearningAgent(Agent):
     
     def act(self, state: State) -> Action:
         state_vector = self.state_to_vector(state)
-        if random.random() < 0.1:
+        if random.random() < self.epsilon:
             action_idx = random.randint(0,self.n_acts-1)
             print("random action")
         else:

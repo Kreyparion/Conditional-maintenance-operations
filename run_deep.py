@@ -28,8 +28,8 @@ from random import random, choice
 
 
 batch_size = 10
-N_epoch = 100
-         
+N_epoch = 1000
+
                 
 # for training policy
 def train_one_epoch(agent : Agent, env : Environnement,state):
@@ -86,10 +86,9 @@ def train(N_epoch):
         state = train_one_epoch(agent,env,state)
 
 
-
-
 train(N_epoch)
 
+# HEY
 
 """
 
