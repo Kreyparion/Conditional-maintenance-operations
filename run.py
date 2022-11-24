@@ -44,7 +44,7 @@ if __name__ == "__main__":
     agent_name = args.agent
 
     # Create the environnement
-    env = Environnement.init("1d")
+    env = Environnement.init("3d")
     print(env.getEveryState())
     # Create the agent
     agent = agents_map[agent_name](env)

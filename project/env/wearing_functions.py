@@ -17,14 +17,15 @@ def wearing_function(function_type:str) -> Tuple[float,Callable]:
 
 def wearing_prob(i,j,p,q,s):      #probability to go from state i to j
     if i==j:
-        if i!=s:
-            return math.exp(-i*p)+math.exp(-i**2*p)
+        if i!=s-1:
+            return 1-p-q
         else:
             return 1
     elif j==i+1:
-        return 1 - math.exp(-i*p)
-    elif j==s and i<s-1:
-        return 1 - math.exp(-i**2*q)
+        return p
+    elif j==s-1 and i<s-2:
+        return q
+
     else:
         return 0
 
