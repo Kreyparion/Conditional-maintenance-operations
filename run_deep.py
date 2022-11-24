@@ -27,7 +27,7 @@ from project.env.actions import Action
 from random import random, choice
 
 
-batch_size = 10
+batch_size = 5
 N_epoch = 1000
 
                 
