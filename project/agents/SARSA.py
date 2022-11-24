@@ -14,9 +14,9 @@ class EpsilonGreedyAgent(Agent):
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
-        self.GAMMA = 0.99
+        self.GAMMA = 0.9999
         self.ALPHA = 0.1
-        self.EPSILON = 0.1
+        self.EPSILON = 0.15
         
         
         self.previous_action = None
@@ -69,6 +69,8 @@ class EpsilonGreedyAgent(Agent):
 
     def learn(self):
         #Learn
+        if self.env.step_number % 500 == 499:
+            self.EPSILON *= 0.999
         if self.previous_state == None:
             pass
         else:
