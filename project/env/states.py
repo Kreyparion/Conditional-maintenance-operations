@@ -16,6 +16,9 @@ class State:
                 self.wear_ranges = [range(item.threshold + 1) for item in self.items]
                 self.max_prods = [item.max_prod for item in self.items]
 
+    def getList(self):
+        return [item.wear/item.threshold for item in self.items]
+
     @classmethod
     def get_states(
         self, thresholds: List[float], wearing_func: Callable, max_prods: List[float]

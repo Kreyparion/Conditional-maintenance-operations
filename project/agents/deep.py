@@ -6,7 +6,7 @@ from torchtyping import TensorType
 from project.agents.agent import Agent
 from project.env.environnement import Environnement
 from project.env.states import State
-from project.env.actions import Action
+from project.env.actions import Action, CoreAction
 import random
 
 
@@ -15,15 +15,15 @@ import random
 # en fonction de l'observation, il nous donne la distribution de proba de prendre une action
 class mlp(nn.Module):
     
-    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.Sigmoid):
+    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.Identity):
         super(mlp, self).__init__() 
         self.sizes = sizes   # tailles des couches de neurones successives du NN
-        self.activation=activation   #fonction d'activation du NN
+        self.activation=activation   # fonction d'activation du NN
         self.output_activation = output_activation
     
         # Build a feedforward neural network.
         layers = []
-        for j in range(len(sizes)-1):   #len(sizes) = nombre de layers du NN
+        for j in range(len(sizes)-1):   # len(sizes) = nombre de layers du NN
             act = activation if j < len(sizes)-2 else output_activation
             layers += [nn.Linear(sizes[j], sizes[j+1]), act()]
         self.seq = nn.Sequential(*layers) # * indique qu'on prend tous les paramètres de layers 
@@ -39,8 +39,8 @@ class DeepLearningAgent(Agent):
     def __init__(self, env : Environnement, hidden_sizes=[32], lr=1e-2, batch_size=10,render=False, **kwargs):
     
         self.env = env
-        self.states = env.getEveryState()
-        self.possible_actions = self.env.getPossibleActions(self.states[0])
+        self.states = env.getListState()    #liste de taux d'usure
+        self.possible_actions =    #liste d'actions de type CoreAction
         self.hidden_sizes = hidden_sizes
         self.lr = lr
         self.render = render
@@ -48,11 +48,11 @@ class DeepLearningAgent(Agent):
         self.batch_size = batch_size
         self.epsilon = 0.1
 
-        self.obs_dim = len(self.states)   # dimension du vecteur d'entrée = nombre d'états possibles
-        # vecteur d'entrée = vecteur avec un 1 quand l'état est celui dans lequel on est  
+        self.obs_dim = len(self.states)   # dimension du vecteur d'entrée = nombre d'items
+        # vecteur d'entrée = vecteur avec pour chaque item le nombre correspondant à sa dégradation  
         
-        self.n_acts = len(self.possible_actions)           # longueur du vecteur de sortie = nb d'actions possibles
-        # sortie = distribution de probabilités pour l'ensemble des actions possibles
+        self.n_acts = len(self.possible_actions)        # longueur du vecteur de sortie = nb d'actions possibles * nb d'items
+        # sortie = proba de prendre chaque action pour chaque item
 
         # Core of policy network
         # make function to compute action distribution
@@ -66,7 +66,7 @@ class DeepLearningAgent(Agent):
         # make some empty lists/tensors for logging.
         self.batch_obs = torch.zeros(size=(batch_size,self.obs_dim))       # for observations
         self.batch_acts = torch.zeros(size=(batch_size,self.n_acts))         # for actions
-        self.batch_weights = []      # for R(tau) weighting in policy gradient
+        self.batch_weights = []      # for weights
 
         # un batch est composé d'épisode
         # une epoch est composée de plusieurs batch donc de plusieurs épisodes
@@ -107,7 +107,8 @@ class DeepLearningAgent(Agent):
 
     
     def act(self, state: State) -> Action:
-        state_vector = self.state_to_vector(state)
+        tab_state = state.getList
+        state_vector = torch.tensor(tab_state)
         if random.random() < self.epsilon:
             action_idx = random.randint(0,self.n_acts-1)
             print("random action")
@@ -118,9 +119,10 @@ class DeepLearningAgent(Agent):
     def observe(self, state: State, action: Action, reward: float, next_state: State, done: bool):
         """Observe the transition and stock in memory"""
         # save state, action, reward
-        
-        self.batch_obs[self.n_batch] = self.state_to_vector(state)    # on stock l'état dans lequel on était
-        self.batch_acts[self.n_batch] = self.action_to_vector(action)    # on stock l'action qu'on vient de faire
+        tab_action = action
+        tab_state = state.getList       
+        self.batch_obs[self.n_batch] = tab_state   # on stock l'état dans lequel on était
+        self.batch_acts[self.n_batch] = tab_action    # on stock l'action qu'on vient de faire
         self.batch_rewards.append(reward)      # on stock la reward qu'on vient de récupérer
         self.done = done
         self.n_batch += 1

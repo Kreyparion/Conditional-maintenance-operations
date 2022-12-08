@@ -46,6 +46,8 @@ class Environnement:
             self._initial_wears.append(item.wear)
             self._initial_nerfs.append(item.is_nerfed)
 
+        self.state = State(self.continuous, self.items)
+
     def reset(self) -> State:
         for item, init_wear, init_nerf in zip(
             self.items, self._initial_wears, self._initial_nerfs
@@ -136,6 +138,9 @@ class Environnement:
         return State.get_states(
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
+
+    def getListState(self) -> List[int]:
+        return [item.wear/item.threshold for item in self.items]
 
     @staticmethod
     def from_list(
