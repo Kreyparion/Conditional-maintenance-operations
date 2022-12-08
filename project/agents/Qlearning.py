@@ -37,11 +37,10 @@ class EpsilonGreedyAgent_Qlearning(Agent):
                 self.qvalue[state][action] = 0
 
 
-
     def act(self, state: State, training = None):
         # use policy to act at a certain state         
         return self.policy(state)
-    
+
     def maxi_action(self, state: State): # Give the maximum action value in a state and the corresponding action
         maxi = -100000
         action_maxi = None
