@@ -9,6 +9,7 @@ from project.env.executions import execution
 import matplotlib.pyplot as plt
 import numpy as np
 import wandb
+from copy import deepcopy
 
 class Environnement:
     def __init__(
@@ -17,9 +18,9 @@ class Environnement:
         continuous: bool = False,
         prev_efficiency: float=2,
         repair_thrs: float = 0,
-        ship_cost: float = 4,
-        corr_cost: float = 4,
-        prev_cost: float = 1,
+        ship_cost: float = 54,
+        corr_cost: float = 54,
+        prev_cost: float = 18,
     ) -> None:
         self.continuous = continuous
         self.prev_efficiency = prev_efficiency
@@ -64,6 +65,14 @@ class Environnement:
 
         self.state = State(self.continuous, self.items)
         return self.state
+    
+    def initial_state(self) -> State:
+        initial_item = deepcopy(self.items)
+        for item, init_wear in zip(
+            initial_item, self._initial_wears
+        ):
+            item.wear = init_wear
+        return State(self.continuous, initial_item)
 
     def step(self, action: Action) -> Tuple[State, float, bool]:
         action_dict = action.action

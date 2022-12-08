@@ -67,7 +67,10 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         self.current_reward = reward
         self.done = done
         if action != Action.ActionDoNothing():
-            logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, next_state={next_state}, done={done}")
+            logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, done={done}")
+            logger.info(f"State value initial_step {self.maxi_action(self.env.initial_state())}")
+            logger.info(f"State value for state {self.qvalue[state]}")
+            
 
         
     

@@ -22,6 +22,7 @@ def train(agent : Agent, env : Environnement):
 
             # Action has effect on environment
             next_state, reward, done = env.step(action)
+            print(state == next_state)
 
             # Agent observe the transition and possibly learns
             agent.observe(state, action, reward, next_state, done)
@@ -44,7 +45,7 @@ if __name__ == "__main__":
     agent_name = args.agent
 
     # Create the environnement
-    env = Environnement.init("3d")
+    env = Environnement.init("3dadvanced")
     print(env.getEveryState())
     # Create the agent
     agent = agents_map[agent_name](env)

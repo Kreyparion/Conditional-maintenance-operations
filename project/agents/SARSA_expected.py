@@ -8,14 +8,14 @@ import gym
 
 class EpsilonGreedyAgent_expected(Agent):
     
-    def __init__(self, env : gym.Env, **kwargs):
+    def __init__(self, env : Environnement, **kwargs):
         self.env = env
-        self.stateCrossActions = [[(state, action) for action in Environnement.getPossibleActions(state)] for state in Environnement.getEveryState()][1:]
+        #self.stateCrossActions = [[(state, action) for action in Environnement.getPossibleActions(state)] for state in Environnement.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
-        self.GAMMA = 0.99
+        self.GAMMA = 0.9999
         self.ALPHA = 0.1
-        self.EPSILON = 0.1
+        self.EPSILON = 0.15
         
         
         self.previous_action = None
@@ -30,9 +30,9 @@ class EpsilonGreedyAgent_expected(Agent):
         
          # Init QValue
         self.qvalue = dict()
-        for state in Environnement.getEveryState()[1:]:
+        for state in env.getEveryState():
             self.qvalue[state] = dict()
-            for action in Environnement.getPossibleActions(state):
+            for action in env.getPossibleActions(state):
                 self.qvalue[state][action] = 0
 
 
@@ -68,6 +68,8 @@ class EpsilonGreedyAgent_expected(Agent):
         
     def learn(self):
         #Learn
+        if self.env.step_number % 500 == 499:
+            self.EPSILON *= 0.999
         if self.previous_state == None:
             pass
         else:
