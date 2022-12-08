@@ -8,6 +8,7 @@ from project.env.executions import execution
 
 import matplotlib.pyplot as plt
 import numpy as np
+import wandb
 
 
 class Environnement:
@@ -15,7 +16,7 @@ class Environnement:
         self,
         items: List[Item],
         continuous: bool = False,
-        prev_efficiency: float=2,
+        prev_efficiency: float = 2,
         repair_thrs: float = 0,
         ship_cost: float = 4,
         corr_cost: float = 4,
@@ -27,7 +28,7 @@ class Environnement:
         self.ship_cost = ship_cost
         self.corr_cost = corr_cost
         self.prev_cost = prev_cost
-        
+
         self.step_number = 0
         self.last_reward = 0
         self.last_500_rewards = []
@@ -35,7 +36,17 @@ class Environnement:
         self.fig = None
         self.items = items
         self.state = None
-        
+        wandb.init(project="proj_rl")
+        wandb.config = {
+            "number_of_items": len(items),
+            "continuous": continuous,
+            "prev_efficiency": prev_efficiency,
+            "repair_thrs": repair_thrs,
+            "ship_cost": ship_cost,
+            "corr_cost": corr_cost,
+            "prev_cost": prev_cost,
+        }
+
         if not continuous:
             for item in self.items:
                 item.threshold = int(item.threshold)
@@ -88,7 +99,9 @@ class Environnement:
                 and self.items[item_index].wear != 0
             ):
                 wear = self.items[item_index].wear
-                self.items[item_index].wear = max(self.repair_thrs, wear - self.prev_efficiency)
+                self.items[item_index].wear = max(
+                    self.repair_thrs, wear - self.prev_efficiency
+                )
                 pre_act_used += 1
 
         self.indexes = []
@@ -113,19 +126,19 @@ class Environnement:
         rew = 0
         for item in self.items:
             rew += item.productivity
-        if nb_corrective+nb_preventif>0:
+        if nb_corrective + nb_preventif > 0:
             rew -= self.ship_cost
         rew -= nb_corrective * self.corr_cost
         rew -= nb_preventif * self.prev_cost
         return rew
 
-    
     def render(self) -> None:
         self.last_500_rewards.append(self.last_reward)
         if len(self.last_500_rewards) > 500:
             self.last_500_rewards.pop(0)
-        
-        
+        if self.step_number % 500 == 0:
+            wandb.log({"reward_500": np.mean(self.last_500_rewards)})
+
     def getPossibleActions(self, state: State) -> List[Action]:
         return Action.listAction(state.nb_items)
 
@@ -140,7 +153,7 @@ class Environnement:
         )
 
     def getListState(self) -> List[int]:
-        return [item.wear/item.threshold for item in self.items]
+        return [item.wear / item.threshold for item in self.items]
 
     @staticmethod
     def from_list(
