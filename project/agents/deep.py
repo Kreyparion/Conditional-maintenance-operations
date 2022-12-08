@@ -15,7 +15,7 @@ import random
 # en fonction de l'observation, il nous donne la distribution de proba de prendre une action
 class mlp(nn.Module):
     
-    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.Identity):
+    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.Sigmoid):
         super(mlp, self).__init__() 
         self.sizes = sizes   # tailles des couches de neurones successives du NN
         self.activation=activation   # fonction d'activation du NN
@@ -40,7 +40,8 @@ class DeepLearningAgent(Agent):
     
         self.env = env
         self.states = env.getListState()    #liste de taux d'usure
-        self.possible_actions =    #liste d'actions de type CoreAction
+        states_init = env.getEveryState()
+        self.possible_actions = env.getPossibleActions(states_init[0])   #liste d'actions de type CoreAction
         self.hidden_sizes = hidden_sizes
         self.lr = lr
         self.render = render
@@ -51,8 +52,8 @@ class DeepLearningAgent(Agent):
         self.obs_dim = len(self.states)   # dimension du vecteur d'entrée = nombre d'items
         # vecteur d'entrée = vecteur avec pour chaque item le nombre correspondant à sa dégradation  
         
-        self.n_acts = len(self.possible_actions)        # longueur du vecteur de sortie = nb d'actions possibles * nb d'items
-        # sortie = proba de prendre chaque action pour chaque item
+        self.n_acts = len(self.possible_actions)        # longueur du vecteur de sortie = nb d'actions possibles
+        # sortie = proba de prendre chaque action
 
         # Core of policy network
         # make function to compute action distribution
@@ -107,7 +108,7 @@ class DeepLearningAgent(Agent):
 
     
     def act(self, state: State) -> Action:
-        tab_state = state.getList
+        tab_state = state.getList()
         state_vector = torch.tensor(tab_state)
         if random.random() < self.epsilon:
             action_idx = random.randint(0,self.n_acts-1)
@@ -119,9 +120,9 @@ class DeepLearningAgent(Agent):
     def observe(self, state: State, action: Action, reward: float, next_state: State, done: bool):
         """Observe the transition and stock in memory"""
         # save state, action, reward
-        tab_action = action
-        tab_state = state.getList       
-        self.batch_obs[self.n_batch] = tab_state   # on stock l'état dans lequel on était
+        tab_action = self.action_to_vector(action)
+        tab_state = state.getList()  
+        self.batch_obs[self.n_batch] = torch.tensor(tab_state)   # on stock l'état dans lequel on était
         self.batch_acts[self.n_batch] = tab_action    # on stock l'action qu'on vient de faire
         self.batch_rewards.append(reward)      # on stock la reward qu'on vient de récupérer
         self.done = done
@@ -138,6 +139,7 @@ class DeepLearningAgent(Agent):
         self.batch_weights = total*total_reward
         # batch_weigths est un vecteur de taille batch_size et de valeurs la reward totale d'un batch
         
+        self.batch_obs = torch.tensor(self.batch_obs)
         
         # take a single policy gradient update step
         self.optimizer.zero_grad()
