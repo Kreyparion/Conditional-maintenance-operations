@@ -6,8 +6,9 @@ from project.agents.agent import Agent
 from project.implemented_agents import agents_map
 # PYTHON
 from argparse import ArgumentParser
+from copy import deepcopy
 
-N_EPISODES = 100
+N_EPISODES = 100000
 
 def train(agent : Agent, env : Environnement):
 
@@ -31,7 +32,7 @@ def train(agent : Agent, env : Environnement):
             env.render()
 
             # Update state
-            state = next_state
+            state = deepcopy(next_state)
 
 
 if __name__ == "__main__":

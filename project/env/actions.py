@@ -73,7 +73,6 @@ class Action:
     _limitationsList = [0.1, 0.3]
     _ca_list = CoreAction.listCoreActions()
     
-    @staticmethod
     def _init_limitations(_ca_list:List[CoreAction],_limitationsList:List[float]):
         limits = dict()
         if len(_limitationsList) != len(_ca_list):

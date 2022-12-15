@@ -3,7 +3,7 @@ from project.env.environnement import Environnement
 from project.env.states import State
 from project.env.actions import Action
 from project.tools.logger import logger, init_logger
-from random import random,choice
+from random import random,choice,randint
 
 
 class EpsilonGreedyAgent_Qlearning(Agent):
@@ -17,7 +17,7 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         # Hyperparameters
         self.GAMMA = 0.9999
         self.ALPHA = 0.1
-        self.EPSILON = 0.15
+        self.EPSILON = 0.06
         
         self.previous_action = None
         self.previous_state = None
@@ -28,6 +28,8 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         self.current_reward = 0
 
         self.done = False
+        
+        self.no_act_count = 0
         
          # Init QValue
         self.qvalue = dict()
@@ -52,26 +54,33 @@ class EpsilonGreedyAgent_Qlearning(Agent):
     
     def policy(self,state:State):
         # define Epsilon greedy policy
+        if self.no_act_count > 0:
+            self.no_act_count -= 1
+            return Action.ActionDoNothing()
         proba = random()
         if proba < self.EPSILON:   
             action = choice(list(self.qvalue[state].keys()))   # choice of a random action
+            if action == Action.ActionDoNothing():
+                self.no_act_count = randint(0,50)
         else:
             maxi,action = self.maxi_action(state)
         return action
-        
+    
     
     def observe(self, state: State, action: Action, reward, next_state: State, done):
         self.current_action = action
         self.current_state = state
         self.current_reward = reward
         self.done = done
+
+
         if action != Action.ActionDoNothing():
             logger.info(f"Step : {self.env.step_number-1} Agent observes: state={state}, action={action}, reward={reward}, done={done}")
             logger.info(f"State value initial_step {self.maxi_action(self.env.initial_state())}")
             logger.info(f"State value for state {self.qvalue[state]}")
-            
-
-        
+    
+    
+    
     
     def learn(self):
         #Learn

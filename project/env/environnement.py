@@ -6,6 +6,7 @@ from project.env.states import State
 from project.env.items import Item
 from project.env.executions import execution
 
+import random
 import matplotlib.pyplot as plt
 import numpy as np
 import wandb
@@ -58,10 +59,15 @@ class Environnement:
 
 
     def reset(self) -> State:
+        
+        item_wear = []
         for item, init_wear in zip(
             self.items, self._initial_wears
         ):
-            item.wear = init_wear
+            item_wear.append(random.randint(0, item.threshold))
+        item_wear.sort(reverse=True)
+        for i,item in enumerate(self.items):
+            item.wear = item_wear[i]
 
         self.state = State(self.continuous, self.items)
         return self.state
@@ -97,7 +103,7 @@ class Environnement:
             ):  # The item is shut down and we can fix it
                 self.items[item_index].wear = self.repair_thrs
                 cor_act_used += 1
-            if (
+            elif (
                 pre_act_used < nb_pre
                 and self.items[item_index].wear != self.items[item_index].threshold
                 and self.items[item_index].wear != 0
@@ -111,7 +117,10 @@ class Environnement:
         self.step_number += 1
         self.state = State(self.continuous, self.items)
         self.last_reward = self.reward(nb_cor, nb_pre)
-        return self.state, self.reward(nb_cor, nb_pre), False
+        done = False
+        #if self.step_number % 5000 == 0:
+        #    done = True
+        return self.state, self.reward(nb_cor, nb_pre), done
 
     def reward(self, nb_corrective, nb_preventif):
         rew = 0
