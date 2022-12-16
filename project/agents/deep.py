@@ -15,7 +15,7 @@ import random
 # en fonction de l'observation, il nous donne la distribution de proba de prendre une action
 class mlp(nn.Module):
     
-    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.Identity):
+    def __init__(self,sizes, activation=nn.ReLU, output_activation=nn.ReLU):
         super(mlp, self).__init__() 
         self.sizes = sizes   # tailles des couches de neurones successives du NN
         self.activation=activation   # fonction d'activation du NN
@@ -84,11 +84,11 @@ class DeepLearningAgent(Agent):
     # on récupère une distribution de probabilité sur les actions à prendre
 
     
-    def compute_loss(self,state:TensorType,action:TensorType, weights:TensorType) -> TensorType:
+    def compute_loss(self,states:TensorType,action:TensorType, weights:TensorType) -> TensorType:
         logp = torch.zeros(self.batch_size)
         for i in range(self.batch_size):
-            logp[i] = self.get_policy(state[i]) @ action[i]
-        return -(weights * logp).mean()
+            logp[i] = self.get_policy(states[i]) @ action[i]
+        return -torch.sum((weights * logp))
 
     # on regarde tous les états dans lesquels on a été et toutes les actions qu'on a prise
     # Pour chaque action prise sur un batch, on lui attribue un poids stocké dans weigths 
@@ -109,6 +109,7 @@ class DeepLearningAgent(Agent):
 
     
     def act(self, state: State) -> Action:
+        
         tab_state = state.getList()
         state_vector = torch.tensor(tab_state)
         if random.random() < self.epsilon and self.random == True:
@@ -116,13 +117,17 @@ class DeepLearningAgent(Agent):
             print("random action")
         else:
             action_idx = torch.argmax(self.get_policy(state_vector))
+        
         return self.possible_actions[action_idx]
+    
+     
+    
 
     def observe(self, state: State, action: Action, reward: float, next_state: State, done: bool):
         """Observe the transition and stock in memory"""
         # save state, action, reward
         tab_action = self.action_to_vector(action)
-        tab_state = state.getList()  
+        tab_state = state.getList()
         self.batch_obs[self.n_batch] = torch.tensor(tab_state)   # on stock l'état dans lequel on était
         self.batch_acts[self.n_batch] = tab_action    # on stock l'action qu'on vient de faire
         self.batch_rewards.append(reward)      # on stock la reward qu'on vient de récupérer
@@ -140,21 +145,19 @@ class DeepLearningAgent(Agent):
         self.batch_weights = total*total_reward
         # batch_weigths est un vecteur de taille batch_size et de valeurs la reward totale d'un batch
         
-        self.batch_obs = torch.tensor(self.batch_obs)
         
         # take a single policy gradient update step
         self.optimizer.zero_grad()
         
-    
-        batch_loss = self.compute_loss(state=self.batch_obs,    # loss sur un batch
+        batch_loss = self.compute_loss(states=self.batch_obs,    # loss sur un batch
                                 action=self.batch_acts,
-                                weights=self.batch_weights
-                                )    
+                                weights=self.batch_weights)
+                                
         batch_loss.backward()
         self.optimizer.step()
         
         print('loss: %.3f \t episode reward: %.3f \t episode len: %.3f'%
-            (batch_loss, np.mean(self.batch_rewards), self.batch_size))
+            (batch_loss, np.sum(self.batch_rewards), self.batch_size))
     
         # reset episode-specific variables
         self.done = False
