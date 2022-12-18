@@ -40,8 +40,11 @@ class EpsilonGreedyAgent_Qlearning(Agent):
 
 
     def act(self, state: State, training = None):
-        # use policy to act at a certain state         
-        return self.policy(state)
+        # use policy to act at a certain state
+        if self.previous_state == state and self.previous_state != self.env.out_of_order_state():
+            return Action.ActionDoNothing()
+        else:
+            return self.policy(state)
 
     def maxi_action(self, state: State): # Give the maximum action value in a state and the corresponding action
         maxi = -100000
@@ -61,7 +64,7 @@ class EpsilonGreedyAgent_Qlearning(Agent):
         if proba < self.EPSILON:   
             action = choice(list(self.qvalue[state].keys()))   # choice of a random action
             if action == Action.ActionDoNothing():
-                self.no_act_count = randint(0,50)
+                self.no_act_count = 0
         else:
             maxi,action = self.maxi_action(state)
         return action

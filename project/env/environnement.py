@@ -30,6 +30,7 @@ class Environnement:
         self.corr_cost = corr_cost
         self.prev_cost = prev_cost
         
+        
         self.step_number = 0
         self.last_reward = 0
         self.last_500_rewards = []
@@ -152,6 +153,12 @@ class Environnement:
         return State.get_states(
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
+    
+    def out_of_order_state(self) -> State:
+        self.ooo_items = deepcopy(self.items)
+        for item in self.ooo_items:
+            item.wear = item.threshold
+        return State(self.continuous, self.ooo_items)
 
     @staticmethod
     def from_list(
