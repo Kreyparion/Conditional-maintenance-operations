@@ -30,9 +30,13 @@ class Environnement:
         self.corr_cost = corr_cost
         self.prev_cost = prev_cost
         
-        
+        self.delay_for_actions = 0
+        self.max_delay = 0
+        self.real_step = 0
         self.step_number = 0
+        self.step_inbetween = 0
         self.last_reward = 0
+        self.step_inbetween_500 = 0
         self.last_500_rewards = []
         self.line1 = []
         self.fig = None
@@ -69,7 +73,10 @@ class Environnement:
         item_wear.sort(reverse=True)
         for i,item in enumerate(self.items):
             item.wear = item_wear[i]
-
+        if self.delay_for_actions < self.max_delay:
+            self.delay_for_actions += 1
+        self.action_queue = [Action.ActionDoNothing() for _ in range(self.delay_for_actions)]
+        self.action_in_queue = False
         self.state = State(self.continuous, self.items)
         return self.state
     
@@ -81,52 +88,83 @@ class Environnement:
             item.wear = init_wear
         return State(self.continuous, initial_item)
 
+    
     def step(self, action: Action) -> Tuple[State, float, bool]:
-        action_dict = action.action
-        nb_cor = action_dict[CoreAction("corrective")]
-        nb_pre = action_dict[CoreAction("preventive")]
-        self.items = self.state.items
-        for item in self.items:
-            item.wearing_step()
-        self.indexes = []
-        for i, item in enumerate(self.items):
-            self.indexes.append((i, item.wear))
+        total_reward = 0
+        if action.action != Action.ActionDoNothing().action:
+            self.items = self.state.items
+            for _ in range(self.delay_for_actions):
+                for item in self.items:
+                    item.wearing_step()
+                total_reward += self.reward(0, 0)
+                self.real_step += 1
+                self.step_inbetween += 1
+            
+                
+            action_dict = action.action
+            
+            nb_cor = action_dict[CoreAction("corrective")]
+            nb_pre = action_dict[CoreAction("preventive")]
+            
+            self.indexes = []
+            for i, item in enumerate(self.items):
+                self.indexes.append((i, item.wear))
 
-        self.indexes.sort(
-            key=lambda x: -x[1]
-        )  # The first indexes are those of the most wore items
-        cor_act_used, pre_act_used = 0, 0
-        for index_tuple in self.indexes:
-            item_index = index_tuple[0]
-            if (
-                cor_act_used < nb_cor
-                and self.items[item_index].wear == self.items[item_index].threshold
-            ):  # The item is shut down and we can fix it
-                self.items[item_index].wear = self.repair_thrs
-                cor_act_used += 1
-            elif (
-                pre_act_used < nb_pre
-                and self.items[item_index].wear != self.items[item_index].threshold
-                and self.items[item_index].wear != 0
-            ):
-                wear = self.items[item_index].wear
-                self.items[item_index].wear = max(self.repair_thrs, wear - self.prev_efficiency)
-                pre_act_used += 1
+            self.indexes.sort(
+                key=lambda x: -x[1]
+            )  # The first indexes are those of the most wore items
+            cor_act_used, pre_act_used = 0, 0
+            for index_tuple in self.indexes:
+                item_index = index_tuple[0]
+                if (
+                    cor_act_used < nb_cor
+                    and self.items[item_index].wear == self.items[item_index].threshold
+                ):  # The item is shut down and we can fix it
+                    self.items[item_index].wear = self.repair_thrs
+                    cor_act_used += 1
+                elif (
+                    pre_act_used < nb_pre
+                    and self.items[item_index].wear != self.items[item_index].threshold
+                    and self.items[item_index].wear != 0
+                ):
+                    wear = self.items[item_index].wear
+                    self.items[item_index].wear = max(self.repair_thrs, wear - self.prev_efficiency)
+                    pre_act_used += 1
+            for item in self.items:
+                item.wearing_step()
+            self.real_step += 1
+            self.step_inbetween += 1
+            total_reward += self.reward(nb_cor, nb_pre)
+
+        else:
+            
+            self.items = deepcopy(self.state.items)
+            for item in self.items:
+                item.wearing_step()
+            self.real_step += 1
+            self.step_inbetween += 1
+            total_reward += self.reward(0, 0)
+            while self.items == self.state.items and self.items != self.out_of_order_state().items:
+                for item in self.items:
+                    item.wearing_step()
+                total_reward += self.reward(0, 0)
+                self.real_step += 1
+                self.step_inbetween += 1
 
 
         self.items.sort(key=lambda x: -x.wear)
         self.step_number += 1
         self.state = State(self.continuous, self.items)
-        self.last_reward = self.reward(nb_cor, nb_pre)
+        self.last_reward = total_reward
         done = False
-        #if self.step_number % 5000 == 0:
+        #if self.step_number % 50000 == 49999:
         #    done = True
-        return self.state, self.reward(nb_cor, nb_pre), done
+        return self.state, total_reward, done
 
     def reward(self, nb_corrective, nb_preventif):
         rew = 0
         for item in self.items:
-            rew += item.productivity
+            rew += item.productivity-0.55 # 0.5 is working great, 0.6 is more risky but works also fine
         if nb_corrective+nb_preventif>0:
             rew -= self.ship_cost
         rew -= nb_corrective * self.corr_cost
@@ -135,12 +173,13 @@ class Environnement:
 
     
     def render(self) -> None:
+        self.step_inbetween_500 += self.step_inbetween
         self.last_500_rewards.append(self.last_reward)
-        if len(self.last_500_rewards) > 500:
-            self.last_500_rewards.pop(0)
+        self.step_inbetween = 0
         if self.step_number % 500 == 0:
-            wandb.log({"reward_500": np.mean(self.last_500_rewards)})
-        
+            wandb.log({"reward_500": np.sum(self.last_500_rewards)/self.step_inbetween_500})
+            self.step_inbetween_500 = 0
+            self.last_500_rewards = []
     def getPossibleActions(self, state: State) -> List[Action]:
         return Action.listAction(state.nb_items)
 
@@ -164,6 +203,12 @@ class Environnement:
             item.wear = item.threshold
         return State(self.continuous, self.ooo_items)
 
+    def get_state_with_wear(self, wear: List[float]) -> State:
+        self.new_items = deepcopy(self.items)
+        for i,item in enumerate(self.new_items):
+            item.wear = wear[i]
+        return State(self.continuous, self.new_items)
+    
     @staticmethod
     def from_list(
         continuous: bool,

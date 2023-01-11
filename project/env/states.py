@@ -111,6 +111,9 @@ class State:
             return NotImplemented
         return self.items == other.items
     
+    def to_tuple(self):
+        return tuple([item.wear for item in self.items])
+    
     def __hash__(self) -> int:
         wears = [item.wear for item in self.items]
         return hash(tuple(wears))

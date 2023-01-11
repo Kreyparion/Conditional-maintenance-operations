@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from copy import deepcopy
 
 class CoreAction:
@@ -183,5 +183,8 @@ class Action:
     def __repr__(self):
         return self.__str__()
     
+    def to_tuple(self) -> Tuple[int]:
+        return tuple(self.action.values())
+    
     def __hash__(self) -> int:
-        return hash(tuple(self.action.keys()))
+        return hash(tuple(self.action.values()))
