@@ -39,5 +39,4 @@ def execution(cmd:str)-> Tuple[bool,List[float],List[float],Callable]:
             threshold,wearing_fun = wearing_function("continuous")
             max_prod = 1.
             return (True ,nb_items * [max_prod],nb_items * [threshold],wearing_fun)
-        
-        
+

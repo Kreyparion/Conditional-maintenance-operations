@@ -3,7 +3,6 @@ from project.env.environnement import Environnement
 from project.env.states import State
 from project.env.actions import Action
 from random import random,choice
-import gym
 
 
 class EpsilonGreedyAgent_expected(Agent):
