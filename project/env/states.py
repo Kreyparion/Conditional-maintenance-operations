@@ -67,6 +67,10 @@ class State:
             for i in range(len(possibilities))
         ]
         return possible_states
+    
+    def getList(self):
+        return [item.wear/item.threshold for item in self.items]
+
 
     def wearing_step(self) -> None:
         for i in range(len(self.items)):
