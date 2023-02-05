@@ -194,6 +194,10 @@ class Environnement:
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
     
+    def getListState(self) -> List[int]:
+        return [item.wear / item.threshold for item in self.items]
+
+
     def out_of_order_state(self) -> State:
         self.ooo_items = deepcopy(self.items)
         for item in self.ooo_items:
