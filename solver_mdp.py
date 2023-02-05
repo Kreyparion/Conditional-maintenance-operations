@@ -74,7 +74,7 @@ def get_matrice_stochastique(A,p):
                     for k in range (p):
                         proba = proba*A[states[i][k]][state_j[k]]
                     res+=proba
-            r[i][j] = 3-states[j].count(4)
+            r[i][j] = p-states[j].count(4)
             Q[i][j] = res             
     return Q,r 
 
@@ -141,7 +141,54 @@ def matrices(Actions,A):
 
     
 P,R =matrices(Actions,A)
+#%%
 
+# def matrice_delay(Actions,A,n):
+#     p,r = matrices(Actions,A)
+#     po = p[0]
+#     ro = r[0]
+#     P = np.zeros(p.shape)
+#     R = np.zeros(r.shape)
+#     P[0] = np.linalg.matrix_power(po,n)
+    
+#     #R[0] = np.linalg.matrix_power(ro,n)
+#     for j in range(n+1):
+#         R[0] += np.matmul(np.linalg.matrix_power(po,j),ro)
+
+    
+#     for i in range(1,p.shape[0]):
+#         for j in range(n+1):
+#             R[i] += np.matmul(np.linalg.matrix_power(po,j),r[i])
+#         P[i] = np.matmul(np.linalg.matrix_power(po,n),p[i])
+#         R[i] = R[i]
+        
+
+#     return P,R
+    
+def matrice_delay(Actions,A,n):
+    p,r = matrices(Actions,A)
+    po = p[0]
+    ro = r[0]
+    P = np.zeros(p.shape)
+    R = np.zeros(r.shape)
+    P[0] = np.linalg.matrix_power(po,n)
+    
+
+    
+    for i in range(0,p.shape[0]):
+        for j in range(n):
+            R[i] += np.matmul(np.linalg.matrix_power(po,j),ro)
+        R[i] += np.matmul(np.linalg.matrix_power(po,n),r[i])
+        P[i] = np.matmul(np.linalg.matrix_power(po,n),p[i])
+        
+        
+
+    return P,R
+
+P,R =  matrice_delay(Actions,A,14)
+
+print(P)
+print("test pass")
 
 # %%
 
@@ -150,10 +197,37 @@ import mdptoolbox
 fh = mdptoolbox.mdp.FiniteHorizon(P, R, 0.9999,10000) 
 fh.run()
 print("value")
+
 print(fh.V)
-print(fh.policy.shappe)
+print(fh.policy.shape)
+best_policy = fh.policy[:,0]
 
-
-
+print(best_policy)
 
 # %%
+
+from copy import deepcopy
+#best_policy = [0 0 0 0 9 0 0 0 9 9 9 8 8 8 8 0 0 0 9 9 9 9 8 8 8 3 9 9 8 8 8 8 8 6 6]
+#best_policy = [0, 0, 0, 0, 9, 0, 0, 0, 9, 9, 9, 8, 8, 8, 8, 0, 0, 0, 9, 9, 9, 9, 8, 8, 8, 3, 9, 9, 8, 8, 8, 8, 8, 6, 6]
+state = env.reset()
+States = get_all_states(A,p)
+done = False
+print(States)
+while not done:
+    # Agent takes action
+    new_state = get_wears(env)
+    int_state = States.index(new_state)
+    action_int = best_policy[int_state]
+    action = Actions[action_int]
+
+    # Action has effect on environment
+    next_state, reward, done = env.step(action)
+
+    # Render environment for user to see
+    env.render()
+
+            # Update state
+    state = deepcopy(next_state)
+# %%
+
+

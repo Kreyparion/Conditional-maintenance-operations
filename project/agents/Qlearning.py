@@ -37,6 +37,8 @@ class EpsilonGreedyAgent_Qlearning(Agent):
             self.qvalue[state] = dict()
             for action in self.env.getPossibleActions(state):
                 self.qvalue[state][action] = 0
+        
+        #self.load_agent()
 
 
     def act(self, state: State, training = None):

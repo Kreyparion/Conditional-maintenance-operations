@@ -6,3 +6,5 @@ env.log
 __pycache__/
 
 .mypy_cache
+
+qvalue.json

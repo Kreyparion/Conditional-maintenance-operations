@@ -164,7 +164,7 @@ class Environnement:
     def reward(self, nb_corrective, nb_preventif):
         rew = 0
         for item in self.items:
-            rew += item.productivity-0.55 # 0.5 is working great, 0.6 is more risky but works also fine
+            rew += item.productivity # -0.5 is working great, 0.6 is more risky but works also fine
         if nb_corrective+nb_preventif>0:
             rew -= self.ship_cost
         rew -= nb_corrective * self.corr_cost
@@ -180,8 +180,9 @@ class Environnement:
             wandb.log({"reward_500": np.sum(self.last_500_rewards)/self.step_inbetween_500})
             self.step_inbetween_500 = 0
             self.last_500_rewards = []
-    def getPossibleActions(self, state: State) -> List[Action]:
-        return Action.listAction(state.nb_items)
+
+    def getPossibleActions(self, state: State =None) -> List[Action]:
+        return Action.listAction(len(self.items))
 
     def getEveryState(self) -> List[State]:
         if self.continuous:
@@ -192,10 +193,6 @@ class Environnement:
         return State.get_states(
             max_prods=max_prods, thresholds=thresholds, wearing_func=wearing_func
         )
-    
-    def getListState(self) -> List[int]:
-        return [item.wear / item.threshold for item in self.items]
-
     
     def out_of_order_state(self) -> State:
         self.ooo_items = deepcopy(self.items)
