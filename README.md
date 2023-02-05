@@ -71,7 +71,7 @@ L'agent solver marche à base de *Markov Decision Process*, il se trouve dans le
 
 Le `Rapport Final` se trouve dans le dossier Documentation et explique plus en détail le code et les conclusions du projet
 
-[1] https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html]
+[1] Agent DQN en pytorch : https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
 [2] https://automatants.cs-campus.fr/formations : Slides de la formation “Reinforcement
 Learning – DQN” de 2021-2022
