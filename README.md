@@ -62,5 +62,22 @@ L'agent réflexe est le premier agent baseline qu'on a implémenté pour pouvoir
 
 L'agent de QLearning est le plus performant dans notre cas d'étude 
 
+### Solver
+
+L'agent solver marche à base de *Markov Decision Process*, il se trouve dans le fichier solver_mdp. On peut en extraire sa politique (liste des actions optimales pour chaque états). Il marche aussi bien pour un délais de prise en compte des actions fixé.
+
 
 ## Références
+
+Le `Rapport Final` se trouve dans le dossier Documentation et explique plus en détail le code et les conclusions du projet
+
+[1] https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html]
+
+[2] https://automatants.cs-campus.fr/formations : Slides de la formation “Reinforcement
+Learning – DQN” de 2021-2022
+
+[3] TP dans le cadre du camp “ML4Good” de EffiSciences : https://www.effisciences.org/
+
+[4] : Reinforcement Learning Course by David Silver (deepmind)
+https://www.youtube.com/watch?v=2pWv7GOvuf0&list=PLqYmG7hTraZDM-
+OYHWgPebj2MfCFzFObQ&index=1
