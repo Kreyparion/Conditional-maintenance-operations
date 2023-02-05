@@ -79,5 +79,4 @@ Learning – DQN” de 2021-2022
 [3] TP dans le cadre du camp “ML4Good” de EffiSciences : https://www.effisciences.org/
 
 [4] : Reinforcement Learning Course by David Silver (deepmind)
-https://www.youtube.com/watch?v=2pWv7GOvuf0&list=PLqYmG7hTraZDM-
-OYHWgPebj2MfCFzFObQ&index=1
+https://www.youtube.com/watch?v=2pWv7GOvuf0&list=PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ&index=1
