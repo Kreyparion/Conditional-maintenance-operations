@@ -19,26 +19,6 @@ A = np.array([
 #nombre d'éoliennes
 p = 3
 
-# def get_all_states(A,p):
-#     m = 1
-#     n = len(A)
-#     STATES = []
-#     state = [n-1 for j in range(p)]
-#     STATES.append([i for i in state])
-#     while state != [0 for j in range(p)] :
-#         #rint (state)
-#         if state[p-m] !=0 : 
-#             state[p-m]-=1
-#             STATES.append([i for i in state])
-#         else : 
-#             m+=1
-#     return STATES
-
-# print("result")
-# print(get_all_states(A,p))
-# print(len(get_all_states(A,p)))   
-#
-
 def get_all_states(A,p):
     liste = list(combinations_with_replacement([i for i in range (len(A))],p))
     states = []
@@ -47,7 +27,6 @@ def get_all_states(A,p):
     return states
 
 #toutes les permutations permet d'avoir tous les états dans les lequels on arrive deuis un état intiale ma_liste
-
 
 def toutes_les_permutations(ma_liste):
     permutations = list(itertools.permutations(ma_liste,len(ma_liste)))
@@ -143,28 +122,6 @@ def matrices(Actions,A):
 P,R =matrices(Actions,A)
 #%%
 
-# def matrice_delay(Actions,A,n):
-#     p,r = matrices(Actions,A)
-#     po = p[0]
-#     ro = r[0]
-#     P = np.zeros(p.shape)
-#     R = np.zeros(r.shape)
-#     P[0] = np.linalg.matrix_power(po,n)
-    
-#     #R[0] = np.linalg.matrix_power(ro,n)
-#     for j in range(n+1):
-#         R[0] += np.matmul(np.linalg.matrix_power(po,j),ro)
-
-    
-#     for i in range(1,p.shape[0]):
-#         for j in range(n+1):
-#             R[i] += np.matmul(np.linalg.matrix_power(po,j),r[i])
-#         P[i] = np.matmul(np.linalg.matrix_power(po,n),p[i])
-#         R[i] = R[i]
-        
-
-#     return P,R
-    
 def matrice_delay(Actions,A,n):
     p,r = matrices(Actions,A)
     po = p[0]
@@ -207,8 +164,6 @@ print(best_policy)
 # %%
 
 from copy import deepcopy
-#best_policy = [0 0 0 0 9 0 0 0 9 9 9 8 8 8 8 0 0 0 9 9 9 9 8 8 8 3 9 9 8 8 8 8 8 6 6]
-#best_policy = [0, 0, 0, 0, 9, 0, 0, 0, 9, 9, 9, 8, 8, 8, 8, 0, 0, 0, 9, 9, 9, 9, 8, 8, 8, 3, 9, 9, 8, 8, 8, 8, 8, 6, 6]
 state = env.reset()
 States = get_all_states(A,p)
 done = False
