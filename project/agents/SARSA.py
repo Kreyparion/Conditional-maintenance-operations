@@ -14,9 +14,9 @@ class EpsilonGreedyAgent(Agent):
         self.stateCrossActions = [[(state, action) for action in env.getPossibleActions(state)] for state in env.getEveryState()]
         # self.allstates = env.mdp.getStates()[1:] # Give the list of all states
         # Hyperparameters
-        self.GAMMA = 0.9999
+        self.GAMMA = 0.99
         self.ALPHA = 0.1
-        self.EPSILON = 0.15
+        self.EPSILON = 0.1
         
         
         self.previous_action = None
